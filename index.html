@@ -422,45 +422,208 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
 
     <!-- ══ 입력 ══ -->
     <div class="page" id="page-input">
+      <div class="card" style="margin-bottom:4px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;font-weight:500;color:var(--text)">기록 날짜</span>
+          <button onclick="setInputDate('today')" style="font-size:11px;padding:4px 10px;border:1.5px solid var(--primary);border-radius:99px;background:none;color:var(--primary);cursor:pointer;font-family:'Noto Sans KR',sans-serif">오늘로</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="changeInputDate(-1)" style="width:34px;height:34px;border:1.5px solid var(--border);border-radius:50%;background:var(--card);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2)">‹</button>
+          <input type="date" id="input-date" style="flex:1;padding:8px 12px;font-size:14px;font-weight:500;border:1.5px solid var(--primary);border-radius:var(--radius-sm);background:var(--card);color:var(--text);text-align:center;font-family:'Noto Sans KR',sans-serif" onchange="onInputDateChange()">
+          <button onclick="changeInputDate(1)" id="input-date-next" style="width:34px;height:34px;border:1.5px solid var(--border);border-radius:50%;background:var(--card);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2)">›</button>
+        </div>
+        <div id="input-date-label" style="font-size:11px;color:var(--text2);text-align:center;margin-top:6px"></div>
+      </div>
       <div class="section-label"><i class="fa-solid fa-droplet" style="color:var(--primary)"></i> 혈당</div>
       <div class="card">
-        <div class="form-row"><span class="form-label">공복혈당</span><input type="number" id="i-bgf" placeholder="예: 95" min="50" max="400"></div>
-        <div class="form-row"><span class="form-label">식후혈당</span><input type="number" id="i-bgp" placeholder="예: 130" min="50" max="400"></div>
+        <div class="form-row">
+          <span class="form-label">공복혈당</span>
+          <input type="number" id="i-bgf" placeholder="예: 95" min="50" max="400" oninput="calcBgDiff()">
+        </div>
+
+        <div style="background:#E6F1FB;border-radius:var(--radius-sm);padding:12px;margin-top:8px;border:1px solid #B5D4F4">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:12px;font-weight:500;color:#0C447C">📅 기준일 대비 혈당 변화</div>
+            <input type="date" id="bg-baseline-date" value="2025-05-09" style="font-size:11px;padding:3px 8px;border:1px solid #B5D4F4;border-radius:6px;background:white;color:#0C447C;font-family:'Noto Sans KR',sans-serif" onchange="calcBgDiff()">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div style="background:white;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:10px;color:#5d6d7e;margin-bottom:2px">기준일</div>
+              <div style="font-size:13px;font-weight:700;color:#0C447C" id="bg-base-val">--</div>
+            </div>
+            <div style="background:white;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:10px;color:#5d6d7e;margin-bottom:2px">오늘</div>
+              <div style="font-size:13px;font-weight:700;color:#0C447C" id="bg-today-val">--</div>
+            </div>
+            <div style="background:white;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:10px;color:#5d6d7e;margin-bottom:2px">변화</div>
+              <div style="font-size:13px;font-weight:700" id="bg-diff-val">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label"><i class="fa-solid fa-chart-line" style="color:var(--primary)"></i> 공복혈당 일주일 추이</div>
+      <div class="card">
+        <div style="position:relative;width:100%;height:160px"><canvas id="chart-bg-week" role="img" aria-label="공복혈당 일주일 추이"></canvas></div>
       </div>
       <div class="section-label"><i class="fa-solid fa-weight-scale" style="color:var(--green)"></i> 인바디</div>
       <div class="card">
-        <div class="form-row"><span class="form-label">체중 (kg)</span><input type="number" id="i-wt" placeholder="예: 58.5" step="0.1"></div>
-        <div class="form-row"><span class="form-label">체지방률 (%)</span><input type="number" id="i-fat" placeholder="예: 28.5" step="0.1"></div>
-        <div class="form-row"><span class="form-label">근육량 (kg)</span><input type="number" id="i-mus" placeholder="예: 38.2" step="0.1"></div>
+        <div style="background:var(--green-pale);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px;text-align:center">
+          <div style="font-size:13px;font-weight:500;color:var(--green);margin-bottom:8px"><i class="fa-solid fa-camera"></i> 인바디 결과지 사진으로 자동입력</div>
+          <div style="font-size:11px;color:var(--green);margin-bottom:10px;line-height:1.6">결과지 사진을 찍으면 AI가 수치를 자동으로 읽어줘요!</div>
+          <label for="inbody-photo" style="display:inline-block;background:var(--green);color:white;padding:10px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer">
+            <i class="fa-solid fa-camera"></i> 사진 촬영 / 선택
+          </label>
+          <input type="file" id="inbody-photo" accept="image/*" style="display:none" onchange="scanInbody(this)">
+          <div id="inbody-scan-status" style="margin-top:8px;font-size:12px;color:var(--green);display:none"></div>
+        </div>
+        <div class="form-row"><span class="form-label">체중 (kg)</span><input type="number" id="i-wt" placeholder="예: 58.5" step="0.1" oninput="calcInbody()"></div>
+        <div class="form-row"><span class="form-label">골격근량 (kg)</span><input type="number" id="i-mus" placeholder="예: 24.5" step="0.1" oninput="calcInbody()"></div>
+        <div class="form-row"><span class="form-label">체지방량 (kg)</span><input type="number" id="i-fatmass" placeholder="예: 18.5" step="0.1" oninput="calcInbody()"></div>
+        <div style="background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;margin-top:4px">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:6px">📊 자동 계산 결과</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="font-size:12px;color:var(--text2)">체지방률<br><span id="calc-fat" style="font-size:16px;font-weight:700;color:var(--text)">-- %</span></div>
+            <div style="font-size:12px;color:var(--text2)">BMI<br><span id="calc-bmi" style="font-size:16px;font-weight:700;color:var(--text)">--</span></div>
+          </div>
+        </div>
+
+        <div style="background:#E6F1FB;border-radius:var(--radius-sm);padding:12px;margin-top:8px;border:1px solid #B5D4F4">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:12px;font-weight:500;color:#0C447C">📅 기준일 대비 변화</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input type="date" id="baseline-date" value="2025-05-09" style="font-size:11px;padding:3px 8px;border:1px solid #B5D4F4;border-radius:6px;background:white;color:#0C447C;font-family:'Noto Sans KR',sans-serif" onchange="calcInbody()">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="baseline-diff">
+            <div style="background:white;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:10px;color:#5d6d7e;margin-bottom:2px">체중</div>
+              <div style="font-size:11px;font-weight:500;color:#5d6d7e" id="base-wt-val">--</div>
+              <div style="font-size:13px;font-weight:700" id="base-wt-diff">-</div>
+            </div>
+            <div style="background:white;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:10px;color:#5d6d7e;margin-bottom:2px">골격근량</div>
+              <div style="font-size:11px;font-weight:500;color:#5d6d7e" id="base-mus-val">--</div>
+              <div style="font-size:13px;font-weight:700" id="base-mus-diff">-</div>
+            </div>
+            <div style="background:white;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:10px;color:#5d6d7e;margin-bottom:2px">체지방량</div>
+              <div style="font-size:11px;font-weight:500;color:#5d6d7e" id="base-fat-val">--</div>
+              <div style="font-size:13px;font-weight:700" id="base-fat-diff">-</div>
+            </div>
+            <div style="background:white;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:10px;color:#5d6d7e;margin-bottom:2px">체지방률</div>
+              <div style="font-size:11px;font-weight:500;color:#5d6d7e" id="base-fatpct-val">--</div>
+              <div style="font-size:13px;font-weight:700" id="base-fatpct-diff">-</div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px;padding-left:4px">체지방률·BMI는 자동 계산돼요</div>
       </div>
-      <div class="section-label"><i class="fa-solid fa-heart-pulse" style="color:var(--amber)"></i> 혈압</div>
+
+      <div class="section-label"><i class="fa-solid fa-chart-line" style="color:var(--green)"></i> 인바디 일주일 추이</div>
       <div class="card">
-        <div class="form-row"><span class="form-label">수축기 (위)</span><input type="number" id="i-sys" placeholder="예: 118"></div>
-        <div class="form-row"><span class="form-label">이완기 (아래)</span><input type="number" id="i-dia" placeholder="예: 76"></div>
+        <div class="legend" id="leg-inbody-week"></div>
+        <div style="position:relative;width:100%;height:180px"><canvas id="chart-inbody-week" role="img" aria-label="인바디 일주일 추이"></canvas></div>
       </div>
+
       <div class="section-label"><i class="fa-solid fa-toilet" style="color:var(--teal)"></i> 배변</div>
       <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <select id="poop-time" style="flex:1;padding:8px 10px;font-size:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--card);color:var(--text);-webkit-appearance:none">
+            <option value="">시간 선택</option>
+            <option>오전 6시</option><option>오전 7시</option><option>오전 8시</option>
+            <option>오전 9시</option><option>오전 10시</option><option>오전 11시</option>
+            <option>오후 12시</option><option>오후 1시</option><option>오후 2시</option>
+            <option>오후 3시</option><option>오후 4시</option><option>오후 5시</option>
+            <option>오후 6시</option><option>오후 7시</option><option>오후 8시</option>
+            <option>오후 9시</option><option>오후 10시</option><option>오후 11시</option>
+          </select>
+        </div>
         <div class="poop-grid">
           <div class="poop-btn" onclick="selPoop(this,'없음')"><span class="pi">😶</span>없음</div>
           <div class="poop-btn" onclick="selPoop(this,'정상')"><span class="pi">✅</span>정상</div>
           <div class="poop-btn" onclick="selPoop(this,'묽음')"><span class="pi">💧</span>묽음</div>
           <div class="poop-btn" onclick="selPoop(this,'딱딱')"><span class="pi">🟤</span>딱딱</div>
-          <div class="poop-btn" onclick="selPoop(this,'2회+')"><span class="pi">🔄</span>2회+</div>
           <div class="poop-btn" onclick="selPoop(this,'복통')"><span class="pi">😣</span>복통</div>
           <div class="poop-btn" onclick="selPoop(this,'혈변')"><span class="pi">🔴</span>혈변</div>
           <div class="poop-btn" onclick="selPoop(this,'기타')"><span class="pi">📝</span>기타</div>
         </div>
       </div>
-      <div class="section-label"><i class="fa-solid fa-person-running" style="color:var(--rose)"></i> 생활 습관</div>
+      <div class="section-label"><i class="fa-solid fa-person-running" style="color:var(--rose)"></i> 운동</div>
       <div class="card">
-        <div class="form-row"><span class="form-label">수면 (시간)</span><input type="number" id="i-slp" placeholder="예: 7" min="0" max="12" step="0.5"></div>
-        <div class="form-row"><span class="form-label">운동 (분)</span><input type="number" id="i-exc" placeholder="예: 30" min="0" max="300"></div>
-        <div class="form-row"><span class="form-label">운동 종류</span>
-          <select id="i-ext">
-            <option value="">선택</option>
-            <option>걷기</option><option>달리기</option><option>수영</option>
-            <option>자전거</option><option>요가/필라테스</option><option>근력운동</option><option>기타</option>
-          </select>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">새벽 / 점심 / 저녁 운동을 각각 기록할 수 있어요</div>
+        <div id="exercise-sessions">
+          <div class="exercise-session" id="ex-session-1">
+            <div style="font-size:12px;font-weight:500;color:var(--rose);margin-bottom:8px">🌙 새벽 운동</div>
+            <div class="form-row">
+              <span class="form-label">운동 종류</span>
+              <select id="i-ext1" style="-webkit-appearance:none">
+                <option value="">선택</option>
+                <option>달리기</option><option>F45</option><option>자전거</option>
+                <option>웨이트</option><option>수영</option><option>등산</option>
+                <option>걷기</option><option>요가/필라테스</option><option>골프</option><option>기타</option>
+              </select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
+                <span style="font-size:11px;color:var(--text2)">시간 (분)</span>
+                <input type="number" id="i-exc1" placeholder="예: 30" min="0" max="300" style="width:100%">
+              </div>
+              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
+                <span style="font-size:11px;color:var(--text2)">칼로리 (kcal)</span>
+                <input type="number" id="i-cal1" placeholder="예: 250" min="0" max="2000" style="width:100%">
+              </div>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+            <div style="font-size:12px;font-weight:500;color:var(--rose);margin-bottom:8px">☀️ 점심 운동</div>
+            <div class="form-row">
+              <span class="form-label">운동 종류</span>
+              <select id="i-ext2" style="-webkit-appearance:none">
+                <option value="">선택</option>
+                <option>달리기</option><option>F45</option><option>자전거</option>
+                <option>웨이트</option><option>수영</option><option>등산</option>
+                <option>걷기</option><option>요가/필라테스</option><option>골프</option><option>기타</option>
+              </select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
+                <span style="font-size:11px;color:var(--text2)">시간 (분)</span>
+                <input type="number" id="i-exc2" placeholder="예: 30" min="0" max="300" style="width:100%">
+              </div>
+              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
+                <span style="font-size:11px;color:var(--text2)">칼로리 (kcal)</span>
+                <input type="number" id="i-cal2" placeholder="예: 250" min="0" max="2000" style="width:100%">
+              </div>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+            <div style="font-size:12px;font-weight:500;color:var(--rose);margin-bottom:8px">🌆 저녁 운동</div>
+            <div class="form-row">
+              <span class="form-label">운동 종류</span>
+              <select id="i-ext3" style="-webkit-appearance:none">
+                <option value="">선택</option>
+                <option>달리기</option><option>F45</option><option>자전거</option>
+                <option>웨이트</option><option>수영</option><option>등산</option>
+                <option>걷기</option><option>요가/필라테스</option><option>골프</option><option>기타</option>
+              </select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
+              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
+                <span style="font-size:11px;color:var(--text2)">시간 (분)</span>
+                <input type="number" id="i-exc3" placeholder="예: 30" min="0" max="300" style="width:100%">
+              </div>
+              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
+                <span style="font-size:11px;color:var(--text2)">칼로리 (kcal)</span>
+                <input type="number" id="i-cal3" placeholder="예: 250" min="0" max="2000" style="width:100%">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
+          <div class="form-row"><span class="form-label">수면 (시간)</span><input type="number" id="i-slp" placeholder="예: 7" min="0" max="12" step="0.5"></div>
         </div>
       </div>
       <div class="section-label"><i class="fa-solid fa-pen-to-square" style="color:var(--coral)"></i> 오늘 컨디션</div>
@@ -605,10 +768,11 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
 <div class="toast" id="toast"></div>
 
 <script>
-let S = { records: [], suppList: [], selectedPoop: '', selectedMood: '', memoDateOffset: 0 };
+let S = { records: [], suppList: [], selectedPoop: '', selectedMood: '', memoDateOffset: 0, userHeight: 157 };
 try { const s = localStorage.getItem('wellness_v3'); if (s) S = Object.assign(S, JSON.parse(s)); } catch(e){}
 if (!S.suppList) S.suppList = [];
 if (!S.records) S.records = [];
+if (!S.userHeight) S.userHeight = 157;
 
 const save = () => { try { localStorage.setItem('wellness_v3', JSON.stringify(S)); } catch(e){} };
 const today = () => new Date().toISOString().slice(0,10);
@@ -632,9 +796,16 @@ function goTab(t, btn) {
   if (t === 'memo') renderMemoPage();
   if (t === 'log') renderLog();
   if (t === 'home') updateHome();
+  if (t === 'input') { initInputDate(); setTimeout(() => { drawBgWeekChart(); drawInbodyWeekChart(); calcBgDiff(); calcInbody(); }, 60); }
 }
 
 // ── poop / mood selectors ──
+function selPoopEntry(el, num, val) {
+  const entry = $('poop-entry-' + num);
+  entry.querySelectorAll('.poop-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  S['selectedPoop' + num] = val;
+}
 function selPoop(el, v) {
   document.querySelectorAll('.poop-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected'); S.selectedPoop = v;
@@ -654,25 +825,348 @@ function selMemoMood(el, v) {
 
 // ── save data ──
 function saveData() {
-  const d = today();
+  const d = $('input-date').value || today();
+  const dateObj = new Date(d + 'T00:00:00');
+  const dateStr = dateObj.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
   let rec = S.records.find(r => r.date === d);
   if (!rec) { rec = { date: d }; S.records.push(rec); }
   if (gv('i-bgf') !== null) rec.bgFast = gv('i-bgf');
-  if (gv('i-bgp') !== null) rec.bgPost = gv('i-bgp');
   if (gv('i-wt') !== null) rec.weight = gv('i-wt');
-  if (gv('i-fat') !== null) rec.fat = gv('i-fat');
+  if (gv('i-fatmass') !== null) rec.fatMass = gv('i-fatmass');
   if (gv('i-mus') !== null) rec.muscle = gv('i-mus');
-  if (gv('i-sys') !== null) rec.sys = gv('i-sys');
-  if (gv('i-dia') !== null) rec.dia = gv('i-dia');
-  if (S.selectedPoop) rec.poop = S.selectedPoop;
+  const heightVal = S.userHeight || 157;
+  rec.height = heightVal;
+  // 체지방률 자동 계산
+  if (rec.weight && rec.fatMass) rec.fat = Math.round((rec.fatMass / rec.weight) * 1000) / 10;
+  // BMI 자동 계산
+  if (rec.weight && heightVal) rec.bmi = Math.round((rec.weight / ((heightVal / 100) ** 2)) * 10) / 10;
+  if (S.selectedPoop) {
+    rec.poop = S.selectedPoop;
+    const poopTime = $('poop-time') ? $('poop-time').value : '';
+    rec.poopTime = poopTime;
+    rec.poopEntries = [{ time: poopTime, type: S.selectedPoop }];
+  }
   if (S.selectedMood) rec.mood = S.selectedMood;
   if (gs('i-memo').trim()) rec.memo = gs('i-memo').trim();
   if (gv('i-slp') !== null) rec.sleep = gv('i-slp');
-  if (gv('i-exc') !== null) rec.exercise = gv('i-exc');
-  if (gs('i-ext')) rec.extype = gs('i-ext');
+  // 운동 3회 저장
+  const exSessions = [];
+  const exLabels = ['새벽', '점심', '저녁'];
+  for (let i = 1; i <= 3; i++) {
+    const type = gs('i-ext' + i);
+    const mins = gv('i-exc' + i);
+    const cal = gv('i-cal' + i);
+    if (type || mins || cal) exSessions.push({ label: exLabels[i-1], type, mins, cal });
+  }
+  if (exSessions.length > 0) {
+    rec.exSessions = exSessions;
+    rec.exercise = exSessions.reduce((s, e) => s + (e.mins || 0), 0);
+    rec.exCalTotal = exSessions.reduce((s, e) => s + (e.cal || 0), 0);
+  }
   S.records.sort((a,b) => a.date.localeCompare(b.date));
   save(); updateStreak(); updateHome();
-  showToast('✅ 오늘 기록이 저장되었어요!');
+  showToast('✅ ' + dateStr + ' 기록 저장!');
+}
+
+// ── 입력 날짜 관리 ──
+function initInputDate() {
+  const el = $('input-date');
+  if (!el) return;
+  el.value = today();
+  updateInputDateLabel();
+}
+function updateInputDateLabel() {
+  const el = $('input-date');
+  if (!el) return;
+  const d = el.value;
+  const isToday = d === today();
+  const dateObj = new Date(d + 'T00:00:00');
+  const label = dateObj.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+  $('input-date-label').textContent = isToday ? '오늘' : label;
+  $('input-date-label').style.color = isToday ? 'var(--green)' : 'var(--amber)';
+  $('input-date-next').style.opacity = d >= today() ? '0.3' : '1';
+  // 기존 기록 있으면 불러오기
+  loadInputData(d);
+}
+function onInputDateChange() {
+  const el = $('input-date');
+  if (el.value > today()) el.value = today();
+  updateInputDateLabel();
+}
+function changeInputDate(dir) {
+  const el = $('input-date');
+  const d = new Date(el.value + 'T00:00:00');
+  d.setDate(d.getDate() + dir);
+  const newDate = d.toISOString().slice(0,10);
+  if (newDate > today()) return;
+  el.value = newDate;
+  updateInputDateLabel();
+}
+function setInputDate(t) {
+  $('input-date').value = today();
+  updateInputDateLabel();
+}
+function loadInputData(d) {
+  const rec = S.records.find(r => r.date === d) || {};
+  $('i-bgf').value = rec.bgFast || '';
+  $('i-wt').value = rec.weight || '';
+  $('i-fatmass').value = rec.fatMass || '';
+  $('i-mus').value = rec.muscle || '';
+  $('i-slp').value = rec.sleep || '';
+  // 운동 3회 복원
+  for (let i = 1; i <= 3; i++) { $('i-ext'+i).value = ''; $('i-exc'+i).value = ''; $('i-cal'+i).value = ''; }
+  if (rec.exSessions) {
+    rec.exSessions.forEach((s, idx) => {
+      const i = idx + 1;
+      if ($('i-ext'+i)) $('i-ext'+i).value = s.type || '';
+      if ($('i-exc'+i)) $('i-exc'+i).value = s.mins || '';
+      if ($('i-cal'+i)) $('i-cal'+i).value = s.cal || '';
+    });
+  }
+  if (rec.memo) $('i-memo').value = rec.memo; else $('i-memo').value = '';
+  calcInbody();
+  // 기분 복원
+  document.querySelectorAll('#page-input .mood-btn').forEach(b => b.classList.remove('selected'));
+  if (rec.mood) {
+    document.querySelectorAll('#page-input .mood-btn').forEach(b => {
+      if (b.textContent.trim().replace(/\n.*/,'') === rec.mood) b.classList.add('selected');
+    });
+  }
+}
+
+
+function calcInbody() {
+  const wt = parseFloat($('i-wt').value);
+  const fatMass = parseFloat($('i-fatmass').value);
+  const mus = parseFloat($('i-mus').value);
+  const height = S.userHeight || 157;
+  let fatPct = null;
+
+  if (wt > 0 && fatMass > 0) {
+    fatPct = Math.round((fatMass / wt) * 1000) / 10;
+    $('calc-fat').textContent = fatPct + ' %';
+  } else {
+    $('calc-fat').textContent = '-- %';
+  }
+
+  if (wt > 0 && height > 0) {
+    const bmi = Math.round((wt / ((height / 100) ** 2)) * 10) / 10;
+    $('calc-bmi').textContent = bmi;
+  } else {
+    $('calc-bmi').textContent = '--';
+  }
+
+  // 기준일 비교
+  const baseEl = $('baseline-date');
+  if (!baseEl) return;
+  const baseDate = baseEl.value;
+  const baseRec = S.records.find(r => r.date === baseDate);
+
+  const diffColor = (v, reverse) => {
+    if (v === null || isNaN(v)) return '#888780';
+    if (v === 0) return '#888780';
+    if (reverse) return v > 0 ? '#1e8449' : '#e74c3c'; // 근육은 늘면 좋음
+    return v > 0 ? '#e74c3c' : '#1e8449'; // 체중/지방은 줄면 좋음
+  };
+  const diffText = v => {
+    if (v === null || isNaN(v)) return '-';
+    const sign = v > 0 ? '+' : '';
+    return sign + v.toFixed(1);
+  };
+
+  if (baseRec) {
+    const baseWt = baseRec.weight, baseMus = baseRec.muscle, baseFat = baseRec.fatMass, baseFatPct = baseRec.fat;
+    $('base-wt-val').textContent = baseWt ? baseWt + ' kg' : '--';
+    $('base-mus-val').textContent = baseMus ? baseMus + ' kg' : '--';
+    $('base-fat-val').textContent = baseFat ? baseFat + ' kg' : '--';
+    $('base-fatpct-val').textContent = baseFatPct ? baseFatPct + ' %' : '--';
+
+    const dWt = (wt && baseWt) ? Math.round((wt - baseWt) * 10) / 10 : null;
+    const dMus = (mus && baseMus) ? Math.round((mus - baseMus) * 10) / 10 : null;
+    const dFat = (fatMass && baseFat) ? Math.round((fatMass - baseFat) * 10) / 10 : null;
+    const dFatPct = (fatPct && baseFatPct) ? Math.round((fatPct - baseFatPct) * 10) / 10 : null;
+
+    $('base-wt-diff').textContent = dWt !== null ? diffText(dWt) + ' kg' : '-';
+    $('base-wt-diff').style.color = diffColor(dWt, false);
+    $('base-mus-diff').textContent = dMus !== null ? diffText(dMus) + ' kg' : '-';
+    $('base-mus-diff').style.color = diffColor(dMus, true);
+    $('base-fat-diff').textContent = dFat !== null ? diffText(dFat) + ' kg' : '-';
+    $('base-fat-diff').style.color = diffColor(dFat, false);
+    $('base-fatpct-diff').textContent = dFatPct !== null ? diffText(dFatPct) + ' %' : '-';
+    $('base-fatpct-diff').style.color = diffColor(dFatPct, false);
+  } else {
+    ['base-wt-val','base-mus-val','base-fat-val','base-fatpct-val'].forEach(id => $(id).textContent = '기록없음');
+    ['base-wt-diff','base-mus-diff','base-fat-diff','base-fatpct-diff'].forEach(id => { $(id).textContent = '-'; $(id).style.color = '#888780'; });
+  }
+}
+
+
+function calcBgDiff() {
+  const todayVal = parseFloat($('i-bgf').value);
+  const baseDate = $('bg-baseline-date') ? $('bg-baseline-date').value : '2025-05-09';
+  const baseRec = S.records.find(r => r.date === baseDate);
+  const baseVal = baseRec ? baseRec.bgFast : null;
+
+  $('bg-base-val').textContent = baseVal ? baseVal + ' mg/dL' : '기록없음';
+  $('bg-today-val').textContent = todayVal > 0 ? todayVal + ' mg/dL' : '--';
+
+  if (todayVal > 0 && baseVal) {
+    const diff = Math.round((todayVal - baseVal) * 10) / 10;
+    const sign = diff > 0 ? '+' : '';
+    $('bg-diff-val').textContent = sign + diff + ' mg/dL';
+    $('bg-diff-val').style.color = diff > 0 ? '#e74c3c' : (diff < 0 ? '#1e8449' : '#888780');
+  } else {
+    $('bg-diff-val').textContent = '-';
+    $('bg-diff-val').style.color = '#888780';
+  }
+}
+
+function drawBgWeekChart() {
+  const el = document.getElementById('chart-bg-week');
+  if (!el) return;
+  const recs = S.records.slice(-7);
+  const labels = recs.map(r => fmt(r.date));
+  const data = recs.map(r => r.bgFast ?? null);
+  if (charts['bg-week']) charts['bg-week'].destroy();
+  charts['bg-week'] = new Chart(el, {
+    type: 'line',
+    data: { labels, datasets: [{
+      label: '공복혈당',
+      data,
+      borderColor: '#185FA5',
+      backgroundColor: 'rgba(24,95,165,0.08)',
+      tension: 0.3,
+      fill: true,
+      spanGaps: true,
+      pointRadius: 5,
+      pointBackgroundColor: data.map(v => v === null ? 'transparent' : v >= 126 ? '#e74c3c' : v >= 100 ? '#d68910' : '#1e8449'),
+      borderWidth: 2
+    }, {
+      label: '정상기준',
+      data: Array(labels.length).fill(100),
+      borderColor: '#1e8449',
+      borderDash: [4,4],
+      borderWidth: 1,
+      pointRadius: 0,
+      fill: false
+    }, {
+      label: '주의기준',
+      data: Array(labels.length).fill(126),
+      borderColor: '#e74c3c',
+      borderDash: [4,4],
+      borderWidth: 1,
+      pointRadius: 0,
+      fill: false
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 70, suggestedMax: 160, ticks: { font: { size: 10 }, stepSize: 30 } },
+        x: { ticks: { font: { size: 10 }, maxRotation: 0 } }
+      }
+    }
+  });
+}
+
+
+  const el = document.getElementById('chart-inbody-week');
+  if (!el) return;
+  const recs = S.records.slice(-7);
+  const labels = recs.map(r => fmt(r.date));
+  const legEl = document.getElementById('leg-inbody-week');
+  if (legEl) legEl.innerHTML = [
+    {c:'#1e8449',l:'체중(kg)'},{c:'#185FA5',l:'골격근(kg)'},{c:'#e74c3c',l:'체지방량(kg)'},{c:'#d68910',l:'체지방률(%)'}
+  ].map(i=>`<div class="legend-item"><div class="legend-dot" style="background:${i.c}"></div>${i.l}</div>`).join('');
+  if (charts['inbody-week']) charts['inbody-week'].destroy();
+  charts['inbody-week'] = new Chart(el, {
+    type: 'line',
+    data: { labels, datasets: [
+      {label:'체중',data:recs.map(r=>r.weight??null),borderColor:'#1e8449',tension:0.3,fill:false,spanGaps:true,pointRadius:4,borderWidth:2,yAxisID:'y'},
+      {label:'골격근',data:recs.map(r=>r.muscle??null),borderColor:'#185FA5',tension:0.3,fill:false,spanGaps:true,pointRadius:4,borderWidth:2,yAxisID:'y'},
+      {label:'체지방량',data:recs.map(r=>r.fatMass??null),borderColor:'#e74c3c',tension:0.3,fill:false,spanGaps:true,pointRadius:4,borderWidth:2,yAxisID:'y'},
+      {label:'체지방률',data:recs.map(r=>r.fat??null),borderColor:'#d68910',tension:0.3,fill:false,spanGaps:true,pointRadius:4,borderWidth:2,borderDash:[4,4],yAxisID:'y2'}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{position:'left',ticks:{font:{size:10}}},
+        y2:{position:'right',grid:{drawOnChartArea:false},ticks:{font:{size:10},callback:v=>v+'%'}},
+        x:{ticks:{font:{size:10},maxRotation:0}}
+      }
+    }
+  });
+}
+
+async function scanInbody(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = $('inbody-scan-status');
+  status.style.display = 'block';
+  status.style.color = 'var(--green)';
+  status.textContent = '📷 사진 분석 중... 잠깐만 기다려주세요!';
+
+  try {
+    const base64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result.split(',')[1]);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+
+    const GEMINI_KEY = 'AIzaSyDBholzHV_uwf3_pTReH2A-N7pCwy3217Y';
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            {
+              inline_data: {
+                mime_type: file.type || 'image/jpeg',
+                data: base64
+              }
+            },
+            {
+              text: '이 인바디(InBody) 측정 결과지 사진입니다. 아래 3가지 수치만 찾아서 JSON으로만 답하세요.\n\n1. weight: 체중 (kg 단위 숫자)\n2. muscle: 골격근량 (kg 단위 숫자)\n3. fatMass: 체지방량 (kg 단위 숫자, 체지방률%가 아닌 kg)\n\n반드시 아래 JSON 형식으로만 답하세요. 값이 없으면 null:\n{"weight":숫자,"muscle":숫자,"fatMass":숫자}\n\nJSON 외 다른 텍스트는 절대 쓰지 마세요.'
+            }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      status.style.color = 'var(--rose)';
+      status.textContent = '❌ API 오류: ' + (data.error?.message || JSON.stringify(data));
+      input.value = '';
+      return;
+    }
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    let filled = 0;
+    if (parsed.weight != null)  { $('i-wt').value = parsed.weight;       filled++; }
+    if (parsed.muscle != null)  { $('i-mus').value = parsed.muscle;       filled++; }
+    if (parsed.fatMass != null) { $('i-fatmass').value = parsed.fatMass;  filled++; }
+    if (parsed.bmr != null)     { $('i-bmr') && ($('i-bmr').value = parsed.bmr); filled++; }
+    calcInbody();
+
+    if (filled > 0) {
+      status.textContent = `✅ ${filled}개 수치를 자동으로 읽었어요! 확인 후 저장해주세요.`;
+      showToast('📊 인바디 수치 자동입력 완료!');
+    } else {
+      status.style.color = 'var(--amber)';
+      status.textContent = '⚠️ 수치를 읽지 못했어요. 사진을 더 선명하게 찍어보세요.';
+    }
+  } catch(e) {
+    status.style.color = 'var(--rose)';
+    status.textContent = '❌ 오류: ' + (e.message || '직접 입력해주세요.');
+    console.error('Gemini 오류:', e);
+  }
+  input.value = '';
 }
 
 // ── memo ──
@@ -825,8 +1319,14 @@ function updateHome() {
   sv('s-bg', rec.bgFast ? '공복 ' + rec.bgFast + (rec.bgPost ? ' · 식후 ' + rec.bgPost : '') : '미입력', 's-bg-c');
   sv('s-ib', rec.weight ? rec.weight + 'kg' + (rec.fat ? ' · 지방 ' + rec.fat + '%' : '') : '미입력', 's-ib-c');
   sv('s-bp', rec.sys ? rec.sys + '/' + rec.dia + ' mmHg' : '미입력', 's-bp-c');
-  sv('s-po', rec.poop || '미입력', 's-po-c');
-  sv('s-lf', rec.sleep || rec.exercise ? (rec.sleep ? '수면 ' + rec.sleep + 'h' : '') + (rec.exercise ? ' 운동 ' + rec.exercise + '분' : '') : '미입력', 's-lf-c');
+  sv('s-po', rec.poopEntries && rec.poopEntries.length > 0
+    ? rec.poopEntries.map(p => (p.time ? p.time + ' ' : '') + p.type).join(' / ')
+    : (rec.poop || '미입력'), 's-po-c');
+  sv('s-lf', rec.sleep || rec.exercise || rec.exSessions ?
+    (rec.sleep ? '수면 ' + rec.sleep + 'h ' : '') +
+    (rec.exSessions ? rec.exSessions.filter(e=>e.type).map(e=>e.label+(e.type?' '+e.type:'')+(e.mins?' '+e.mins+'분':'')).join(' / ') :
+     rec.exercise ? '운동 ' + rec.exercise + '분' : '')
+    : '미입력', 's-lf-c');
   const moodEmoji = {'최고':'😄 최고','좋음':'🙂 좋음','보통':'😐 보통','나쁨':'😞 나쁨'};
   sv('s-memo', rec.memo ? (rec.mood ? moodEmoji[rec.mood] + ' · ' : '') + rec.memo.slice(0,30) + (rec.memo.length > 30 ? '...' : '') : (rec.mood ? moodEmoji[rec.mood] : '미입력'), 's-memo-c');
 
@@ -937,6 +1437,8 @@ function showToast(msg) {
 updateHome();
 updateStreak();
 S.memoDateOffset = 0;
+initInputDate();
+setTimeout(() => { drawBgWeekChart(); drawInbodyWeekChart(); calcBgDiff(); }, 100);
 
 // service worker
 if ('serviceWorker' in navigator) {
