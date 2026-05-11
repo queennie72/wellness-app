@@ -2,7 +2,7 @@
   "name": "나의 웰니스 트래커",
   "short_name": "나의 웰니스",
   "description": "혈당, 인바디, 혈압, 영양제, 배변, 메모를 한곳에서 관리하는 나만의 웰니스 앱",
-  "start_url": "/",
+  "start_url": "/wellness-app/"
   "display": "standalone",
   "background_color": "#1a5276",
   "theme_color": "#1a5276",
