@@ -624,9 +624,11 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
           <i class="fa-solid fa-floppy-disk"></i> 저장
         </button>
       </div>
+      <div class="card" style="margin-top:12px">
+        <div class="card-title"><i class="fa-solid fa-calendar-days" style="color:#1a5276"></i> 최근 기록</div>
+        <div id="log-list"><div class="empty-state"><i class="fa-regular fa-calendar"></i>아직 기록이 없어요.</div></div>
+      </div>
     </div>
-
-  </div><!-- /pages -->
 
   <nav>
     <button class="active" onclick="goTab('home',this)" id="nav-home">
@@ -643,9 +645,6 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
     </button>
     <button onclick="goTab('chart',this)" id="nav-chart">
       <i class="fa-solid fa-chart-line"></i>추이
-    </button>
-    <button onclick="goTab('log',this)" id="nav-log">
-      <i class="fa-solid fa-list"></i>기록
     </button>
     <button onclick="goTab('settings',this)" id="nav-settings">
       <i class="fa-solid fa-gear"></i>설정
@@ -685,7 +684,7 @@ function goTab(t, btn) {
   if (t === 'log') renderLog();
   if (t === 'home') updateHome();
   if (t === 'input') { initInputDate(); setTimeout(() => { drawBgWeekChart(); drawInbodyWeekChart(); calcBgDiff(); calcInbody(); }, 60); }
-  if (t === 'settings') initSettings();
+  if (t === 'settings') { initSettings(); renderLog(); }
 }
 
 // ── poop / mood selectors ──
