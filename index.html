@@ -284,11 +284,11 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
           <button onclick="setInputDate('today')" style="font-size:11px;padding:4px 10px;border:1.5px solid #1a5276;border-radius:99px;background:none;color:#1a5276;cursor:pointer;font-family:'Noto Sans KR',sans-serif">오늘로</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          <button onclick="changeInputDate(-1)" style="width:34px;height:34px;border:1.5px solid #dce1e7;border-radius:50%;background:#ffffff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5d6d7e">‹</button>
-          <input type="date" id="input-date" style="flex:1;padding:8px 12px;font-size:14px;font-weight:500;border:1.5px solid #1a5276;border-radius:10px;background:#ffffff;color:#1c2833;text-align:center;font-family:'Noto Sans KR',sans-serif" onchange="onInputDateChange()">
-          <button onclick="changeInputDate(1)" id="input-date-next" style="width:34px;height:34px;border:1.5px solid #dce1e7;border-radius:50%;background:#ffffff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5d6d7e">›</button>
+          <button onclick="changeInputDate(-1)" style="width:36px;height:36px;border:1.5px solid #dce1e7;border-radius:50%;background:#ffffff;font-size:20px;cursor:pointer;color:#5d6d7e;flex-shrink:0">‹</button>
+          <input type="date" id="input-date" style="flex:1;padding:10px 8px;font-size:15px;font-weight:500;border:2px solid #1a5276;border-radius:10px;background:#ffffff;color:#1c2833;text-align:center;font-family:'Noto Sans KR',sans-serif;min-height:44px;-webkit-appearance:none;display:block;width:100%" onchange="onInputDateChange()">
+          <button onclick="changeInputDate(1)" id="input-date-next" style="width:36px;height:36px;border:1.5px solid #dce1e7;border-radius:50%;background:#ffffff;font-size:20px;cursor:pointer;color:#5d6d7e;flex-shrink:0">›</button>
         </div>
-        <div id="input-date-label" style="font-size:11px;color:#5d6d7e;text-align:center;margin-top:6px"></div>
+        <div id="input-date-label" style="font-size:12px;color:#5d6d7e;text-align:center;margin-top:6px;font-weight:500"></div>
       </div>
       <div class="section-label"><i class="fa-solid fa-droplet" style="color:#1a5276"></i> 혈당</div>
       <div class="card">
@@ -634,8 +634,8 @@ const save = () => { try { localStorage.setItem('wellness_v3', JSON.stringify(S)
 const today = () => new Date().toISOString().slice(0,10);
 const fmt = d => { const p = d.split('-'); return p[1]+'/'+p[2]; };
 const $ = id => document.getElementById(id);
-const gv = id => { const v = $(id).value; return v === '' ? null : parseFloat(v); };
-const gs = id => $(id).value;
+const gv = id => { const el = $(id); if (!el) return null; const v = el.value; return v === '' ? null : parseFloat(v); };
+const gs = id => { const el = $(id); return el ? el.value : ''; };
 
 // header date
 $('headerDate').textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
