@@ -713,47 +713,51 @@ function selMemoMood(el, v) {
 
 // ── save data ──
 function saveData() {
-  const d = $('input-date').value || today();
-  const dateObj = new Date(d + 'T00:00:00');
-  const dateStr = dateObj.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
-  let rec = S.records.find(r => r.date === d);
-  if (!rec) { rec = { date: d }; S.records.push(rec); }
-  if (gv('i-bgf') !== null) rec.bgFast = gv('i-bgf');
-  if (gv('i-wt') !== null) rec.weight = gv('i-wt');
-  if (gv('i-fatmass') !== null) rec.fatMass = gv('i-fatmass');
-  if (gv('i-mus') !== null) rec.muscle = gv('i-mus');
-  const heightVal = S.userHeight || 157;
-  rec.height = heightVal;
-  // 체지방률 자동 계산
-  if (rec.weight && rec.fatMass) rec.fat = Math.round((rec.fatMass / rec.weight) * 1000) / 10;
-  // BMI 자동 계산
-  if (rec.weight && heightVal) rec.bmi = Math.round((rec.weight / ((heightVal / 100) ** 2)) * 10) / 10;
-  if (S.selectedPoop) {
-    rec.poop = S.selectedPoop;
-    const poopTime = $('poop-time') ? $('poop-time').value : '';
-    rec.poopTime = poopTime;
-    rec.poopEntries = [{ time: poopTime, type: S.selectedPoop }];
+  try {
+    const inputDateEl = $('input-date');
+    const d = (inputDateEl && inputDateEl.value) ? inputDateEl.value : today();
+    const dateObj = new Date(d + 'T00:00:00');
+    const dateStr = dateObj.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+    let rec = S.records.find(r => r.date === d);
+    if (!rec) { rec = { date: d }; S.records.push(rec); }
+    if (gv('i-bgf') !== null) rec.bgFast = gv('i-bgf');
+    if (gv('i-wt') !== null) rec.weight = gv('i-wt');
+    if (gv('i-fatmass') !== null) rec.fatMass = gv('i-fatmass');
+    if (gv('i-mus') !== null) rec.muscle = gv('i-mus');
+    const heightVal = S.userHeight || 157;
+    rec.height = heightVal;
+    if (rec.weight && rec.fatMass) rec.fat = Math.round((rec.fatMass / rec.weight) * 1000) / 10;
+    if (rec.weight && heightVal) rec.bmi = Math.round((rec.weight / ((heightVal / 100) ** 2)) * 10) / 10;
+    if (S.selectedPoop) {
+      rec.poop = S.selectedPoop;
+      const poopTime = $('poop-time') ? $('poop-time').value : '';
+      rec.poopTime = poopTime;
+      rec.poopEntries = [{ time: poopTime, type: S.selectedPoop }];
+    }
+    if (S.selectedMood) rec.mood = S.selectedMood;
+    const memoEl = $('i-memo');
+    if (memoEl && memoEl.value.trim()) rec.memo = memoEl.value.trim();
+    if (gv('i-slp') !== null) rec.sleep = gv('i-slp');
+    const exSessions = [];
+    const exLabels = ['새벽', '점심', '저녁'];
+    for (let i = 1; i <= 3; i++) {
+      const type = gs('i-ext' + i);
+      const mins = gv('i-exc' + i);
+      const cal = gv('i-cal' + i);
+      if (type || mins || cal) exSessions.push({ label: exLabels[i-1], type, mins, cal });
+    }
+    if (exSessions.length > 0) {
+      rec.exSessions = exSessions;
+      rec.exercise = exSessions.reduce((s, e) => s + (e.mins || 0), 0);
+      rec.exCalTotal = exSessions.reduce((s, e) => s + (e.cal || 0), 0);
+    }
+    S.records.sort((a,b) => a.date.localeCompare(b.date));
+    save(); updateStreak(); updateHome();
+    showToast('✅ ' + dateStr + ' 기록 저장!');
+  } catch(e) {
+    console.error('saveData 오류:', e);
+    showToast('❌ 저장 오류: ' + e.message);
   }
-  if (S.selectedMood) rec.mood = S.selectedMood;
-  if (gs('i-memo').trim()) rec.memo = gs('i-memo').trim();
-  if (gv('i-slp') !== null) rec.sleep = gv('i-slp');
-  // 운동 3회 저장
-  const exSessions = [];
-  const exLabels = ['새벽', '점심', '저녁'];
-  for (let i = 1; i <= 3; i++) {
-    const type = gs('i-ext' + i);
-    const mins = gv('i-exc' + i);
-    const cal = gv('i-cal' + i);
-    if (type || mins || cal) exSessions.push({ label: exLabels[i-1], type, mins, cal });
-  }
-  if (exSessions.length > 0) {
-    rec.exSessions = exSessions;
-    rec.exercise = exSessions.reduce((s, e) => s + (e.mins || 0), 0);
-    rec.exCalTotal = exSessions.reduce((s, e) => s + (e.cal || 0), 0);
-  }
-  S.records.sort((a,b) => a.date.localeCompare(b.date));
-  save(); updateStreak(); updateHome();
-  showToast('✅ ' + dateStr + ' 기록 저장!');
 }
 
 // ── 입력 날짜 관리 ──
@@ -1222,17 +1226,21 @@ function bpSt(sys) {
 }
 function updateHome() {
   const d = today(), rec = S.records.find(r => r.date === d) || {};
-  const setM = (id, v, u) => { $(id).innerHTML = (v != null ? parseFloat(v).toFixed(1).replace(/\.0$/, '') : '--') + '<span class="metric-unit"> ' + u + '</span>'; };
+  const setM = (id, v, u) => { const el = $(id); if (!el) return; el.innerHTML = (v != null ? parseFloat(v).toFixed(1).replace(/\.0$/, '') : '--') + '<span class="metric-unit"> ' + u + '</span>'; };
+  const setH = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+  const sv = (id, v, ck) => { const el = $(id), eck = $(ck); if (el) el.textContent = v; if (eck) eck.textContent = v !== '미입력' ? '✅' : ''; };
+
   setM('h-bgf', rec.bgFast, 'mg/dL');
   setM('h-wt', rec.weight, 'kg');
-  $('h-bp').innerHTML = rec.sys ? rec.sys + '/' + rec.dia + '<span class="metric-unit"> mmHg</span>' : '--<span class="metric-unit"> mmHg</span>';
-  $('h-bgf-st').innerHTML = bgSt(rec.bgFast);
-  $('h-fat-st').innerHTML = rec.fat != null ? (rec.fat < 30 ? '<span class="st-good">체지방 정상</span>' : '<span class="st-warn">체지방 ' + rec.fat + '%</span>') : '';
-  $('h-bp-st').innerHTML = bpSt(rec.sys);
+  setM('h-mus', rec.muscle, 'kg');
+  setH('h-bp', rec.sys ? rec.sys + '/' + rec.dia + '<span class="metric-unit"> mmHg</span>' : '--<span class="metric-unit"> mmHg</span>');
+  setH('h-bgf-st', bgSt(rec.bgFast));
+  setH('h-fat-st', rec.fat != null ? (rec.fat < 30 ? '<span class="st-good">체지방 정상</span>' : '<span class="st-warn">체지방 ' + rec.fat + '%</span>') : '');
+  setH('h-mus-st', rec.muscle != null ? '' : '');
+  setH('h-bp-st', bpSt(rec.sys));
 
-  const sv = (id, v, ck) => { $(id).textContent = v; $(ck).textContent = v !== '미입력' ? '✅' : ''; };
-  sv('s-bg', rec.bgFast ? '공복 ' + rec.bgFast + (rec.bgPost ? ' · 식후 ' + rec.bgPost : '') : '미입력', 's-bg-c');
-  sv('s-ib', rec.weight ? rec.weight + 'kg' + (rec.fat ? ' · 지방 ' + rec.fat + '%' : '') : '미입력', 's-ib-c');
+  sv('s-bg', rec.bgFast ? '공복 ' + rec.bgFast : '미입력', 's-bg-c');
+  sv('s-ib', rec.weight ? rec.weight + 'kg' + (rec.fat ? ' · 지방 ' + rec.fat + '%' : '') + (rec.muscle ? ' · 근육 ' + rec.muscle + 'kg' : '') : '미입력', 's-ib-c');
   sv('s-bp', rec.sys ? rec.sys + '/' + rec.dia + ' mmHg' : '미입력', 's-bp-c');
   sv('s-po', rec.poopEntries && rec.poopEntries.length > 0
     ? rec.poopEntries.map(p => (p.time ? p.time + ' ' : '') + p.type).join(' / ')
