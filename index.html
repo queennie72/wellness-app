@@ -423,14 +423,18 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
               </select>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
+              <div style="display:flex;flex-direction:column;gap:3px">
                 <span style="font-size:11px;color:#5d6d7e">시간 (분)</span>
-                <input type="number" id="i-exc1" placeholder="예: 30" min="0" max="300" style="width:100%">
+                <input type="number" id="i-exc1" placeholder="예: 30" min="0" max="300" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
               </div>
-              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
-                <span style="font-size:11px;color:#5d6d7e">칼로리 (kcal)</span>
-                <input type="number" id="i-cal1" placeholder="예: 250" min="0" max="2000" style="width:100%">
+              <div style="display:flex;flex-direction:column;gap:3px">
+                <span style="font-size:11px;color:#5d6d7e">거리 (km)</span>
+                <input type="number" id="i-dist1" placeholder="예: 5.2" min="0" step="0.1" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
               </div>
+            </div>
+            <div class="form-row" style="margin-bottom:4px">
+              <span class="form-label">메모</span>
+              <input type="text" id="i-exmemo1" placeholder="예: 페이스 5:30" style="flex:1">
             </div>
           </div>
           <div style="border-top:1px solid #dce1e7;padding-top:10px;margin-top:4px">
@@ -445,14 +449,18 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
               </select>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
+              <div style="display:flex;flex-direction:column;gap:3px">
                 <span style="font-size:11px;color:#5d6d7e">시간 (분)</span>
-                <input type="number" id="i-exc2" placeholder="예: 30" min="0" max="300" style="width:100%">
+                <input type="number" id="i-exc2" placeholder="예: 30" min="0" max="300" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
               </div>
-              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
-                <span style="font-size:11px;color:#5d6d7e">칼로리 (kcal)</span>
-                <input type="number" id="i-cal2" placeholder="예: 250" min="0" max="2000" style="width:100%">
+              <div style="display:flex;flex-direction:column;gap:3px">
+                <span style="font-size:11px;color:#5d6d7e">거리 (km)</span>
+                <input type="number" id="i-dist2" placeholder="예: 5.2" min="0" step="0.1" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
               </div>
+            </div>
+            <div class="form-row" style="margin-bottom:4px">
+              <span class="form-label">메모</span>
+              <input type="text" id="i-exmemo2" placeholder="예: 페이스 5:30" style="flex:1">
             </div>
           </div>
           <div style="border-top:1px solid #dce1e7;padding-top:10px;margin-top:4px">
@@ -466,19 +474,27 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
                 <option>걷기</option><option>요가/필라테스</option><option>골프</option><option>기타</option>
               </select>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
-              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <div style="display:flex;flex-direction:column;gap:3px">
                 <span style="font-size:11px;color:#5d6d7e">시간 (분)</span>
-                <input type="number" id="i-exc3" placeholder="예: 30" min="0" max="300" style="width:100%">
+                <input type="number" id="i-exc3" placeholder="예: 30" min="0" max="300" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
               </div>
-              <div class="form-row" style="margin-bottom:0;flex-direction:column;gap:3px">
-                <span style="font-size:11px;color:#5d6d7e">칼로리 (kcal)</span>
-                <input type="number" id="i-cal3" placeholder="예: 250" min="0" max="2000" style="width:100%">
+              <div style="display:flex;flex-direction:column;gap:3px">
+                <span style="font-size:11px;color:#5d6d7e">거리 (km)</span>
+                <input type="number" id="i-dist3" placeholder="예: 5.2" min="0" step="0.1" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
               </div>
+            </div>
+            <div class="form-row" style="margin-bottom:4px">
+              <span class="form-label">메모</span>
+              <input type="text" id="i-exmemo3" placeholder="예: 페이스 5:30" style="flex:1">
             </div>
           </div>
         </div>
         <div style="margin-top:10px;padding-top:8px;border-top:1px solid #dce1e7">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+            <span style="font-size:12px;color:#5d6d7e">이번달 누적 거리</span>
+            <span id="monthly-dist" style="font-size:14px;font-weight:700;color:#1a5276">-- km</span>
+          </div>
           <div class="form-row"><span class="form-label">수면 (시간)</span><input type="number" id="i-slp" placeholder="예: 7" min="0" max="12" step="0.5"></div>
         </div>
       </div>
@@ -574,18 +590,20 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
         <div class="chart-wrap"><canvas id="chart-bg" role="img" aria-label="혈당 추이 차트"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title"><i class="fa-solid fa-weight-scale" style="color:#1e8449"></i> 체중·체지방 추이</div>
-        <div class="legend" id="leg-body"></div>
-        <div class="chart-wrap"><canvas id="chart-body" role="img" aria-label="체중 체지방 추이 차트"></canvas></div>
+        <div class="card-title"><i class="fa-solid fa-weight-scale" style="color:#1e8449"></i> 체중 추이 (14일)</div>
+        <div class="chart-wrap"><canvas id="chart-weight" role="img" aria-label="체중 추이 차트"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title"><i class="fa-solid fa-heart-pulse" style="color:#b7770d"></i> 혈압 추이</div>
-        <div class="legend" id="leg-bp"></div>
-        <div class="chart-wrap"><canvas id="chart-bp" role="img" aria-label="혈압 추이 차트"></canvas></div>
+        <div class="card-title"><i class="fa-solid fa-dumbbell" style="color:#922b21"></i> 근육량 추이 (14일)</div>
+        <div class="chart-wrap"><canvas id="chart-muscle" role="img" aria-label="근육량 추이 차트"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title"><i class="fa-solid fa-toilet" style="color:#117a65"></i> 배변 상태 (14일)</div>
-        <div class="chart-wrap" style="height:200px"><canvas id="chart-poop" role="img" aria-label="배변 상태 차트"></canvas></div>
+        <div class="card-title"><i class="fa-solid fa-circle" style="color:#e74c3c"></i> 체지방량 추이 (14일)</div>
+        <div class="chart-wrap"><canvas id="chart-fatmass" role="img" aria-label="체지방량 추이 차트"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-percent" style="color:#d68910"></i> 체지방률 추이 (14일)</div>
+        <div class="chart-wrap"><canvas id="chart-fatpct" role="img" aria-label="체지방률 추이 차트"></canvas></div>
       </div>
     </div>
 
@@ -743,13 +761,14 @@ function saveData() {
     for (let i = 1; i <= 3; i++) {
       const type = gs('i-ext' + i);
       const mins = gv('i-exc' + i);
-      const cal = gv('i-cal' + i);
-      if (type || mins || cal) exSessions.push({ label: exLabels[i-1], type, mins, cal });
+      const dist = gv('i-dist' + i);
+      const memo = gs('i-exmemo' + i);
+      if (type || mins || dist) exSessions.push({ label: exLabels[i-1], type, mins, dist, memo });
     }
     if (exSessions.length > 0) {
       rec.exSessions = exSessions;
       rec.exercise = exSessions.reduce((s, e) => s + (e.mins || 0), 0);
-      rec.exCalTotal = exSessions.reduce((s, e) => s + (e.cal || 0), 0);
+      rec.exDistTotal = exSessions.reduce((s, e) => s + (e.dist || 0), 0);
     }
     S.records.sort((a,b) => a.date.localeCompare(b.date));
     save(); updateStreak(); updateHome();
@@ -806,15 +825,24 @@ function loadInputData(d) {
   $('i-mus').value = rec.muscle || '';
   $('i-slp').value = rec.sleep || '';
   // 운동 3회 복원
-  for (let i = 1; i <= 3; i++) { $('i-ext'+i).value = ''; $('i-exc'+i).value = ''; $('i-cal'+i).value = ''; }
+  for (let i = 1; i <= 3; i++) {
+    const el_ext = $('i-ext'+i), el_exc = $('i-exc'+i);
+    const el_dist = $('i-dist'+i), el_memo = $('i-exmemo'+i);
+    if (el_ext) el_ext.value = '';
+    if (el_exc) el_exc.value = '';
+    if (el_dist) el_dist.value = '';
+    if (el_memo) el_memo.value = '';
+  }
   if (rec.exSessions) {
     rec.exSessions.forEach((s, idx) => {
       const i = idx + 1;
       if ($('i-ext'+i)) $('i-ext'+i).value = s.type || '';
       if ($('i-exc'+i)) $('i-exc'+i).value = s.mins || '';
-      if ($('i-cal'+i)) $('i-cal'+i).value = s.cal || '';
+      if ($('i-dist'+i)) $('i-dist'+i).value = s.dist || '';
+      if ($('i-exmemo'+i)) $('i-exmemo'+i).value = s.memo || '';
     });
   }
+  updateMonthlyDist();
   if (rec.memo) $('i-memo').value = rec.memo; else $('i-memo').value = '';
   calcInbody();
   // 기분 복원
@@ -979,6 +1007,17 @@ function initSettings() {
   $('settings-height').value = S.userHeight || 157;
   $('key-status').textContent = S.geminiKey ? '✅ API 키가 저장되어 있어요' : '❌ API 키가 없어요';
   $('key-status').style.color = S.geminiKey ? '#1e8449' : '#e74c3c';
+}
+
+
+function updateMonthlyDist() {
+  const el = $('monthly-dist');
+  if (!el) return;
+  const ym = today().slice(0, 7);
+  const total = S.records
+    .filter(r => r.date.startsWith(ym))
+    .reduce((sum, r) => sum + (r.exDistTotal || 0), 0);
+  el.textContent = total > 0 ? Math.round(total * 10) / 10 + ' km' : '-- km';
 }
 
 
@@ -1292,26 +1331,44 @@ function mk(id, type, data, opts) {
 }
 function drawCharts() {
   const recs = S.records.slice(-14), labels = recs.map(r => fmt(r.date));
-  mkLeg('leg-bg', [{c:'#2e86c1',l:'공복혈당'},{c:'#e74c3c',l:'식후혈당'}]);
+  const lineOpts = (color, min) => ({
+    type:'line',
+    data:{labels,datasets:[{
+      data:recs.map(r=>r[Object.keys(r)[0]]??null),
+      borderColor:color,backgroundColor:color+'22',
+      tension:0.3,fill:true,spanGaps:true,pointRadius:4,borderWidth:2
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{suggestedMin:min,ticks:{font:{size:10}}},x:{ticks:{font:{size:10},maxRotation:0}}}}
+  });
+
+  // 혈당
+  mkLeg('leg-bg', [{c:'#2e86c1',l:'공복혈당'}]);
   mk('chart-bg','line',{labels,datasets:[
-    {data:recs.map(r=>r.bgFast??null),borderColor:'#2e86c1',tension:0.3,fill:false,spanGaps:true,pointRadius:3,borderWidth:2},
-    {data:recs.map(r=>r.bgPost??null),borderColor:'#e74c3c',tension:0.3,fill:false,spanGaps:true,pointRadius:3,borderWidth:2,borderDash:[5,4]}
-  ]},{scales:{y:{min:60,suggestedMax:200,ticks:{stepSize:40,font:{size:10}}},x:{ticks:{font:{size:10},maxRotation:0}}}});
+    {data:recs.map(r=>r.bgFast??null),borderColor:'#2e86c1',backgroundColor:'#2e86c122',tension:0.3,fill:true,spanGaps:true,pointRadius:4,borderWidth:2},
+    {data:Array(labels.length).fill(100),borderColor:'#1e8449',borderDash:[4,4],borderWidth:1,pointRadius:0,fill:false},
+    {data:Array(labels.length).fill(126),borderColor:'#e74c3c',borderDash:[4,4],borderWidth:1,pointRadius:0,fill:false}
+  ]},{scales:{y:{min:70,suggestedMax:160,ticks:{stepSize:30,font:{size:10}}},x:{ticks:{font:{size:10},maxRotation:0}}}});
 
-  mkLeg('leg-body',[{c:'#1e8449',l:'체중 (kg)'},{c:'#d68910',l:'체지방률 (%)'}]);
-  mk('chart-body','line',{labels,datasets:[
-    {data:recs.map(r=>r.weight??null),borderColor:'#1e8449',tension:0.3,fill:false,spanGaps:true,pointRadius:3,borderWidth:2,yAxisID:'y'},
-    {data:recs.map(r=>r.fat??null),borderColor:'#d68910',tension:0.3,fill:false,spanGaps:true,pointRadius:3,borderWidth:2,borderDash:[5,4],yAxisID:'y2'}
-  ]},{scales:{y:{position:'left',ticks:{font:{size:10}}},y2:{position:'right',grid:{drawOnChartArea:false},ticks:{font:{size:10}}},x:{ticks:{font:{size:10},maxRotation:0}}}});
+  // 체중
+  mk('chart-weight','line',{labels,datasets:[
+    {data:recs.map(r=>r.weight??null),borderColor:'#1e8449',backgroundColor:'#1e844922',tension:0.3,fill:true,spanGaps:true,pointRadius:4,borderWidth:2}
+  ]},{scales:{y:{ticks:{font:{size:10}}},x:{ticks:{font:{size:10},maxRotation:0}}}});
 
-  mkLeg('leg-bp',[{c:'#922b21',l:'수축기'},{c:'#117a65',l:'이완기'}]);
-  mk('chart-bp','line',{labels,datasets:[
-    {data:recs.map(r=>r.sys??null),borderColor:'#922b21',tension:0.3,fill:false,spanGaps:true,pointRadius:3,borderWidth:2},
-    {data:recs.map(r=>r.dia??null),borderColor:'#117a65',tension:0.3,fill:false,spanGaps:true,pointRadius:3,borderWidth:2,borderDash:[5,4]}
-  ]},{scales:{y:{min:40,suggestedMax:160,ticks:{stepSize:30,font:{size:10}}},x:{ticks:{font:{size:10},maxRotation:0}}}});
+  // 근육량
+  mk('chart-muscle','line',{labels,datasets:[
+    {data:recs.map(r=>r.muscle??null),borderColor:'#1a5276',backgroundColor:'#1a527622',tension:0.3,fill:true,spanGaps:true,pointRadius:4,borderWidth:2}
+  ]},{scales:{y:{ticks:{font:{size:10}}},x:{ticks:{font:{size:10},maxRotation:0}}}});
 
-  const pt=['정상','묽음','딱딱','2회+','없음','기타','복통'];
-  mk('chart-poop','bar',{labels:pt,datasets:[{data:pt.map(t=>recs.filter(r=>r.poop===t).length),backgroundColor:['#1D9E75','#2e86c1','#d68910','#e74c3c','#95a5a6','#7F77DD','#e74c3c'],borderRadius:5}]},{scales:{y:{ticks:{stepSize:1,font:{size:10}}},x:{ticks:{font:{size:10}}}}});
+  // 체지방량
+  mk('chart-fatmass','line',{labels,datasets:[
+    {data:recs.map(r=>r.fatMass??null),borderColor:'#e74c3c',backgroundColor:'#e74c3c22',tension:0.3,fill:true,spanGaps:true,pointRadius:4,borderWidth:2}
+  ]},{scales:{y:{ticks:{font:{size:10}}},x:{ticks:{font:{size:10},maxRotation:0}}}});
+
+  // 체지방률
+  mk('chart-fatpct','line',{labels,datasets:[
+    {data:recs.map(r=>r.fat??null),borderColor:'#d68910',backgroundColor:'#d6891022',tension:0.3,fill:true,spanGaps:true,pointRadius:4,borderWidth:2}
+  ]},{scales:{y:{ticks:{font:{size:10},callback:v=>v+'%'}},x:{ticks:{font:{size:10},maxRotation:0}}}});
 }
 function drawSuppChart() {
   const recs = S.records.slice(-14), labels = recs.map(r => fmt(r.date));
