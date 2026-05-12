@@ -233,28 +233,18 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
       </div>
 
       <div class="card">
-        <div class="card-title"><i class="fa-solid fa-clipboard-list" style="color:#1a5276"></i> 오늘 기록 현황</div>
-        <div class="summary-row">
+        <div class="card-title"><i class="fa-solid fa-clipboard-list" style="color:#1a5276"></i> 오늘 기록 현황 <span style="font-size:10px;color:#aab7b8;font-weight:400">탭하면 입력화면으로</span></div>
+        <div class="summary-row" onclick="goTab('input',document.getElementById('nav-input'))" style="cursor:pointer">
           <div class="summary-icon" style="background:#d6eaf8"><i class="fa-solid fa-droplet" style="color:#1a5276"></i></div>
           <div class="summary-info"><div class="summary-name">혈당</div><div class="summary-val" id="s-bg">미입력</div></div>
           <span class="check-icon" id="s-bg-c"></span>
         </div>
-        <div class="summary-row">
+        <div class="summary-row" onclick="goTab('input',document.getElementById('nav-input'))" style="cursor:pointer">
           <div class="summary-icon" style="background:#d5f5e3"><i class="fa-solid fa-weight-scale" style="color:#1e8449"></i></div>
           <div class="summary-info"><div class="summary-name">인바디</div><div class="summary-val" id="s-ib">미입력</div></div>
           <span class="check-icon" id="s-ib-c"></span>
         </div>
-        <div class="summary-row">
-          <div class="summary-icon" style="background:#fef9e7"><i class="fa-solid fa-heart-pulse" style="color:#b7770d"></i></div>
-          <div class="summary-info"><div class="summary-name">혈압</div><div class="summary-val" id="s-bp">미입력</div></div>
-          <span class="check-icon" id="s-bp-c"></span>
-        </div>
-        <div class="summary-row">
-          <div class="summary-icon" style="background:#d0ece7"><i class="fa-solid fa-toilet" style="color:#117a65"></i></div>
-          <div class="summary-info"><div class="summary-name">배변</div><div class="summary-val" id="s-po">미입력</div></div>
-          <span class="check-icon" id="s-po-c"></span>
-        </div>
-        <div class="summary-row">
+        <div class="summary-row" onclick="goTab('supp',document.getElementById('nav-supp'))" style="cursor:pointer">
           <div class="summary-icon" style="background:#f4ecf7"><i class="fa-solid fa-capsules" style="color:#6c3483"></i></div>
           <div class="summary-info">
             <div class="summary-name">영양제</div>
@@ -263,12 +253,12 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
           </div>
           <span class="check-icon" id="s-sp-c"></span>
         </div>
-        <div class="summary-row">
+        <div class="summary-row" onclick="goTab('input',document.getElementById('nav-input'))" style="cursor:pointer">
           <div class="summary-icon" style="background:#fadbd8"><i class="fa-solid fa-person-running" style="color:#922b21"></i></div>
           <div class="summary-info"><div class="summary-name">운동·수면</div><div class="summary-val" id="s-lf">미입력</div></div>
           <span class="check-icon" id="s-lf-c"></span>
         </div>
-        <div class="summary-row">
+        <div class="summary-row" onclick="goTab('memo',document.getElementById('nav-memo'))" style="cursor:pointer">
           <div class="summary-icon" style="background:#fdebd0"><i class="fa-solid fa-pen-to-square" style="color:#ca6f1e"></i></div>
           <div class="summary-info"><div class="summary-name">컨디션 메모</div><div class="summary-val" id="s-memo">미입력</div></div>
           <span class="check-icon" id="s-memo-c"></span>
