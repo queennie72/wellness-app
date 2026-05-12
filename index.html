@@ -605,7 +605,32 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
       </div>
     </div>
 
-    <!-- ══ 설정 ══ -->
+    <!-- ══ 조회 ══ -->
+    <div class="page" id="page-history">
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-calendar-days" style="color:#1a5276"></i> 날짜별 기록 조회</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <button onclick="historyNav(-1)" style="width:36px;height:36px;border:1.5px solid #dce1e7;border-radius:50%;background:#fff;font-size:20px;cursor:pointer;color:#5d6d7e;flex-shrink:0">‹</button>
+          <input type="date" id="history-date" style="flex:1;padding:10px 8px;font-size:15px;font-weight:500;border:2px solid #1a5276;border-radius:10px;background:#fff;color:#1c2833;text-align:center;font-family:'Noto Sans KR',sans-serif;min-height:44px;-webkit-appearance:none" onchange="renderHistory()">
+          <button onclick="historyNav(1)" id="history-next-btn" style="width:36px;height:36px;border:1.5px solid #dce1e7;border-radius:50%;background:#fff;font-size:20px;cursor:pointer;color:#5d6d7e;flex-shrink:0">›</button>
+        </div>
+        <div id="history-date-label" style="font-size:12px;color:#5d6d7e;text-align:center;margin-bottom:12px;font-weight:500"></div>
+
+        <div id="history-content">
+          <div class="empty-state"><i class="fa-regular fa-calendar"></i>날짜를 선택해주세요</div>
+        </div>
+      </div>
+
+      <div class="card" id="history-exercise-card" style="display:none">
+        <div class="card-title"><i class="fa-solid fa-person-running" style="color:#922b21"></i> 운동 기록</div>
+        <div id="history-exercise-content"></div>
+      </div>
+
+      <div class="card" id="history-memo-card" style="display:none">
+        <div class="card-title"><i class="fa-solid fa-pen-to-square" style="color:#ca6f1e"></i> 컨디션 메모</div>
+        <div id="history-memo-content"></div>
+      </div>
+    </div>
     <div class="page" id="page-settings">
       <div class="card">
         <div class="card-title"><i class="fa-solid fa-key" style="color:#1a5276"></i> AI 인바디 스캔 설정</div>
@@ -654,6 +679,9 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
     <button onclick="goTab('chart',this)" id="nav-chart">
       <i class="fa-solid fa-chart-line"></i>추이
     </button>
+    <button onclick="goTab('history',this)" id="nav-history">
+      <i class="fa-solid fa-calendar-days"></i>조회
+    </button>
     <button onclick="goTab('settings',this)" id="nav-settings">
       <i class="fa-solid fa-gear"></i>설정
     </button>
@@ -692,8 +720,8 @@ function goTab(t, btn) {
   if (t === 'log') renderLog();
   if (t === 'home') updateHome();
   if (t === 'input') { initInputDate(); setTimeout(() => { drawBgWeekChart(); drawInbodyWeekChart(); calcBgDiff(); calcInbody(); }, 60); }
-  if (t === 'settings') { initSettings(); renderLog(); }
-}
+  if (t === 'history') initHistory();
+  if (t === 'settings') { initSettings(); renderLog(); }}
 
 // ── poop / mood selectors ──
 function selPoopEntry(el, num, val) {
@@ -999,6 +1027,157 @@ function initSettings() {
   $('key-status').style.color = S.geminiKey ? '#1e8449' : '#e74c3c';
 }
 
+
+// ── 조회 페이지 ──
+function initHistory() {
+  const el = $('history-date');
+  if (!el.value) el.value = today();
+  renderHistory();
+}
+function historyNav(dir) {
+  const el = $('history-date');
+  const d = new Date((el.value || today()) + 'T00:00:00');
+  d.setDate(d.getDate() + dir);
+  const nd = d.toISOString().slice(0,10);
+  if (nd > today()) return;
+  el.value = nd;
+  renderHistory();
+}
+function renderHistory() {
+  const el = $('history-date');
+  const d = el.value || today();
+  const isToday = d === today();
+  const dateObj = new Date(d + 'T00:00:00');
+  const dateStr = dateObj.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+  $('history-date-label').textContent = dateStr + (isToday ? ' (오늘)' : '');
+  $('history-date-label').style.color = isToday ? '#1e8449' : '#1a5276';
+  $('history-next-btn').style.opacity = d >= today() ? '0.3' : '1';
+
+  const rec = S.records.find(r => r.date === d);
+  const content = $('history-content');
+  const exCard = $('history-exercise-card');
+  const memoCard = $('history-memo-card');
+
+  if (!rec) {
+    content.innerHTML = '<div class="empty-state" style="padding:16px 0"><i class="fa-regular fa-calendar"></i>이 날의 기록이 없어요</div>';
+    exCard.style.display = 'none';
+    memoCard.style.display = 'none';
+    return;
+  }
+
+  // 기준일 비교 (5/9)
+  const baseRec = S.records.find(r => r.date === '2025-05-09') || {};
+  const diff = (v, base, reverse) => {
+    if (v == null || base == null) return '';
+    const d = Math.round((v - base) * 10) / 10;
+    const sign = d > 0 ? '+' : '';
+    const color = d === 0 ? '#888780' : (reverse ? (d > 0 ? '#1e8449' : '#e74c3c') : (d > 0 ? '#e74c3c' : '#1e8449'));
+    return `<span style="font-size:11px;color:${color};margin-left:6px">${sign}${d}</span>`;
+  };
+
+  const rows = [];
+
+  // 혈당
+  if (rec.bgFast) {
+    const st = rec.bgFast < 100 ? '<span style="color:#1e8449;font-size:11px">정상</span>' : rec.bgFast < 126 ? '<span style="color:#b7770d;font-size:11px">주의</span>' : '<span style="color:#e74c3c;font-size:11px">높음</span>';
+    rows.push(`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #dce1e7">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:32px;height:32px;border-radius:8px;background:#d6eaf8;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-droplet" style="color:#1a5276;font-size:14px"></i></div>
+        <span style="font-size:13px;font-weight:500">공복혈당</span>
+      </div>
+      <div style="text-align:right">
+        <span style="font-size:16px;font-weight:700;color:#1c2833">${rec.bgFast} <span style="font-size:11px;color:#5d6d7e">mg/dL</span></span>
+        ${diff(rec.bgFast, baseRec.bgFast, false)} ${st}
+      </div>
+    </div>`);
+  }
+
+  // 체중
+  if (rec.weight) rows.push(`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #dce1e7">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:32px;height:32px;border-radius:8px;background:#d5f5e3;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-weight-scale" style="color:#1e8449;font-size:14px"></i></div>
+      <span style="font-size:13px;font-weight:500">체중</span>
+    </div>
+    <div style="text-align:right"><span style="font-size:16px;font-weight:700;color:#1c2833">${rec.weight} <span style="font-size:11px;color:#5d6d7e">kg</span></span>${diff(rec.weight, baseRec.weight, false)}</div>
+  </div>`);
+
+  // 골격근량
+  if (rec.muscle) rows.push(`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #dce1e7">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:32px;height:32px;border-radius:8px;background:#fdebd0;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-dumbbell" style="color:#922b21;font-size:14px"></i></div>
+      <span style="font-size:13px;font-weight:500">골격근량</span>
+    </div>
+    <div style="text-align:right"><span style="font-size:16px;font-weight:700;color:#1c2833">${rec.muscle} <span style="font-size:11px;color:#5d6d7e">kg</span></span>${diff(rec.muscle, baseRec.muscle, true)}</div>
+  </div>`);
+
+  // 체지방량
+  if (rec.fatMass) rows.push(`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #dce1e7">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:32px;height:32px;border-radius:8px;background:#fadbd8;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-circle" style="color:#e74c3c;font-size:14px"></i></div>
+      <span style="font-size:13px;font-weight:500">체지방량</span>
+    </div>
+    <div style="text-align:right"><span style="font-size:16px;font-weight:700;color:#1c2833">${rec.fatMass} <span style="font-size:11px;color:#5d6d7e">kg</span></span>${diff(rec.fatMass, baseRec.fatMass, false)}</div>
+  </div>`);
+
+  // 체지방률
+  if (rec.fat) rows.push(`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #dce1e7">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:32px;height:32px;border-radius:8px;background:#fef9e7;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-percent" style="color:#b7770d;font-size:14px"></i></div>
+      <span style="font-size:13px;font-weight:500">체지방률</span>
+    </div>
+    <div style="text-align:right"><span style="font-size:16px;font-weight:700;color:#1c2833">${rec.fat} <span style="font-size:11px;color:#5d6d7e">%</span></span>${diff(rec.fat, baseRec.fat, false)}</div>
+  </div>`);
+
+  // BMI
+  if (rec.bmi) rows.push(`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #dce1e7">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:32px;height:32px;border-radius:8px;background:#f4ecf7;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-chart-simple" style="color:#6c3483;font-size:14px"></i></div>
+      <span style="font-size:13px;font-weight:500">BMI</span>
+    </div>
+    <div style="text-align:right"><span style="font-size:16px;font-weight:700;color:#1c2833">${rec.bmi}</span></div>
+  </div>`);
+
+  // 수면
+  if (rec.sleep) rows.push(`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:32px;height:32px;border-radius:8px;background:#d6eaf8;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-moon" style="color:#1a5276;font-size:14px"></i></div>
+      <span style="font-size:13px;font-weight:500">수면</span>
+    </div>
+    <div style="text-align:right"><span style="font-size:16px;font-weight:700;color:#1c2833">${rec.sleep} <span style="font-size:11px;color:#5d6d7e">시간</span></span></div>
+  </div>`);
+
+  content.innerHTML = rows.length ? rows.join('') : '<div class="empty-state" style="padding:16px 0"><i class="fa-regular fa-calendar"></i>이 날의 건강 기록이 없어요</div>';
+
+  // 운동
+  if (rec.exSessions && rec.exSessions.length > 0) {
+    exCard.style.display = 'block';
+    $('history-exercise-content').innerHTML = rec.exSessions.map(s => `
+      <div style="padding:10px 0;border-bottom:1px solid #dce1e7">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;font-weight:500;color:#922b21">${s.label}</span>
+          <span style="font-size:12px;color:#5d6d7e">${s.type || ''}</span>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:4px;font-size:12px;color:#5d6d7e">
+          ${s.mins ? `<span>⏱ ${s.mins}분</span>` : ''}
+          ${s.dist ? `<span>📍 ${s.dist}km</span>` : ''}
+          ${s.memo ? `<span>📝 ${s.memo}</span>` : ''}
+        </div>
+      </div>`).join('');
+  } else {
+    exCard.style.display = 'none';
+  }
+
+  // 메모
+  if (rec.memo || rec.mood) {
+    memoCard.style.display = 'block';
+    const moodEmoji = {'최고':'😄','좋음':'🙂','보통':'😐','나쁨':'😞'};
+    $('history-memo-content').innerHTML = `
+      ${rec.mood ? `<div style="font-size:20px;margin-bottom:6px">${moodEmoji[rec.mood]||''} ${rec.mood}</div>` : ''}
+      ${rec.memo ? `<div style="font-size:13px;color:#5d6d7e;line-height:1.7">${rec.memo}</div>` : ''}`;
+  } else {
+    memoCard.style.display = 'none';
+  }
+}
 
 function updateMonthlyDist() {
   const el = $('monthly-dist');
