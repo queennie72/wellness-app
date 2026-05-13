@@ -111,14 +111,6 @@ input[type=number], input[type=text], input[type=date], select, textarea {
 }
 .form-row input:focus, .form-row select:focus { outline: none; border-color: #2e86c1; }
 textarea { resize: none; line-height: 1.5; min-height: 80px; }
-.poop-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 8px; }
-.poop-btn {
-  padding: 8px 2px; border: 1.5px solid #dce1e7; border-radius: 10px;
-  text-align: center; cursor: pointer; font-size: 10px; color: #5d6d7e;
-  background: #ffffff; font-family: 'Noto Sans KR', sans-serif;
-}
-.poop-btn .pi { font-size: 20px; display: block; margin-bottom: 2px; }
-.poop-btn.selected { border-color: #1a5276; background: #d6eaf8; color: #1a5276; font-weight: 500; }
 .save-btn {
   width: 100%; padding: 14px; background: #1a5276;
   color: white; border: none; border-radius: 10px;
@@ -374,29 +366,6 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
         <div style="position:relative;width:100%;height:180px"><canvas id="chart-inbody-week" role="img" aria-label="인바디 일주일 추이"></canvas></div>
       </div>
 
-      <div class="section-label"><i class="fa-solid fa-toilet" style="color:#117a65"></i> 배변</div>
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-          <select id="poop-time" style="flex:1;padding:8px 10px;font-size:12px;border:1.5px solid #dce1e7;border-radius:10px;background:#ffffff;color:#1c2833;-webkit-appearance:none">
-            <option value="">시간 선택</option>
-            <option>오전 6시</option><option>오전 7시</option><option>오전 8시</option>
-            <option>오전 9시</option><option>오전 10시</option><option>오전 11시</option>
-            <option>오후 12시</option><option>오후 1시</option><option>오후 2시</option>
-            <option>오후 3시</option><option>오후 4시</option><option>오후 5시</option>
-            <option>오후 6시</option><option>오후 7시</option><option>오후 8시</option>
-            <option>오후 9시</option><option>오후 10시</option><option>오후 11시</option>
-          </select>
-        </div>
-        <div class="poop-grid">
-          <div class="poop-btn" onclick="selPoop(this,'없음')"><span class="pi">😶</span>없음</div>
-          <div class="poop-btn" onclick="selPoop(this,'정상')"><span class="pi">✅</span>정상</div>
-          <div class="poop-btn" onclick="selPoop(this,'묽음')"><span class="pi">💧</span>묽음</div>
-          <div class="poop-btn" onclick="selPoop(this,'딱딱')"><span class="pi">🟤</span>딱딱</div>
-          <div class="poop-btn" onclick="selPoop(this,'복통')"><span class="pi">😣</span>복통</div>
-          <div class="poop-btn" onclick="selPoop(this,'혈변')"><span class="pi">🔴</span>혈변</div>
-          <div class="poop-btn" onclick="selPoop(this,'기타')"><span class="pi">📝</span>기타</div>
-        </div>
-      </div>
       <div class="section-label"><i class="fa-solid fa-person-running" style="color:#922b21"></i> 운동</div>
       <div class="card">
         <div style="font-size:12px;color:#5d6d7e;margin-bottom:10px">새벽 / 점심 / 저녁 운동을 각각 기록할 수 있어요</div>
@@ -691,7 +660,7 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
 <div class="toast" id="toast"></div>
 
 <script>
-let S = { records: [], suppList: [], selectedPoop: '', selectedMood: '', memoDateOffset: 0, userHeight: 157 };
+let S = { records: [], suppList: [], selectedMood: '', memoDateOffset: 0, userHeight: 157 };
 try { const s = localStorage.getItem('wellness_v3'); if (s) S = Object.assign(S, JSON.parse(s)); } catch(e){}
 if (!S.suppList) S.suppList = [];
 if (!S.records) S.records = [];
@@ -723,17 +692,7 @@ function goTab(t, btn) {
   if (t === 'history') initHistory();
   if (t === 'settings') { initSettings(); renderLog(); }}
 
-// ── poop / mood selectors ──
-function selPoopEntry(el, num, val) {
-  const entry = $('poop-entry-' + num);
-  entry.querySelectorAll('.poop-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  S['selectedPoop' + num] = val;
-}
-function selPoop(el, v) {
-  document.querySelectorAll('.poop-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected'); S.selectedPoop = v;
-}
+// ── mood selectors ──
 function selMood(el, v) {
   document.querySelectorAll('#page-input .mood-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected'); S.selectedMood = v;
@@ -764,12 +723,6 @@ function saveData() {
     rec.height = heightVal;
     if (rec.weight && rec.fatMass) rec.fat = Math.round((rec.fatMass / rec.weight) * 1000) / 10;
     if (rec.weight && heightVal) rec.bmi = Math.round((rec.weight / ((heightVal / 100) ** 2)) * 10) / 10;
-    if (S.selectedPoop) {
-      rec.poop = S.selectedPoop;
-      const poopTime = $('poop-time') ? $('poop-time').value : '';
-      rec.poopTime = poopTime;
-      rec.poopEntries = [{ time: poopTime, type: S.selectedPoop }];
-    }
     if (S.selectedMood) rec.mood = S.selectedMood;
     const memoEl = $('i-memo');
     if (memoEl && memoEl.value.trim()) rec.memo = memoEl.value.trim();
