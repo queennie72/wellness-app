@@ -790,7 +790,8 @@ function setInputDate(t) {
 }
 function loadInputData(d) {
   const rec = S.records.find(r => r.date === d) || {};
-  $('i-bgf').value = rec.bgFast || '';
+  const bgEl = $('i-bgf');
+  if (bgEl) bgEl.value = rec.bgFast || '';
   $('i-wt').value = rec.weight || '';
   $('i-fatmass').value = rec.fatMass || '';
   $('i-mus').value = rec.muscle || '';
@@ -816,6 +817,7 @@ function loadInputData(d) {
   updateMonthlyDist();
   if (rec.memo) $('i-memo').value = rec.memo; else $('i-memo').value = '';
   calcInbody();
+  calcBgDiff();
   // 기분 복원
   document.querySelectorAll('#page-input .mood-btn').forEach(b => b.classList.remove('selected'));
   if (rec.mood) {
@@ -849,9 +851,9 @@ function calcInbody() {
 
   // 기준일 비교
   const baseEl = $('baseline-date');
-  if (!baseEl) return;
-  const baseDate = baseEl.value;
+  const baseDate = baseEl ? baseEl.value : '2025-05-09';
   const baseRec = S.records.find(r => r.date === baseDate);
+  console.log('기준일:', baseDate, '기준일 레코드:', baseRec, '전체 레코드:', S.records.map(r=>r.date));
 
   const diffColor = (v, reverse) => {
     if (v === null || isNaN(v)) return '#888780';
