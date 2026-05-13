@@ -1281,8 +1281,8 @@ function renderMemoPage() {
   const parts = [];
   if (rec.bgFast) parts.push(`공복혈당 <strong>${rec.bgFast}</strong> mg/dL`);
   if (rec.weight) parts.push(`체중 <strong>${rec.weight}</strong> kg`);
-  if (rec.sys) parts.push(`혈압 <strong>${rec.sys}/${rec.dia}</strong>`);
-  if (rec.poop) parts.push(`배변 <strong>${rec.poop}</strong>`);
+  if (rec.muscle) parts.push(`골격근 <strong>${rec.muscle}</strong> kg`);
+  if (rec.fat) parts.push(`체지방률 <strong>${rec.fat}</strong> %`);
   if (rec.sleep) parts.push(`수면 <strong>${rec.sleep}</strong>시간`);
   $('memo-day-summary').innerHTML = parts.length ? parts.join(' &nbsp;·&nbsp; ') : '<span style="color:#aab7b8">이 날의 건강 기록이 없어요</span>';
 
@@ -1394,18 +1394,11 @@ function updateHome() {
   setM('h-bgf', rec.bgFast, 'mg/dL');
   setM('h-wt', rec.weight, 'kg');
   setM('h-mus', rec.muscle, 'kg');
-  setH('h-bp', rec.sys ? rec.sys + '/' + rec.dia + '<span class="metric-unit"> mmHg</span>' : '--<span class="metric-unit"> mmHg</span>');
   setH('h-bgf-st', bgSt(rec.bgFast));
   setH('h-fat-st', rec.fat != null ? (rec.fat < 30 ? '<span class="st-good">체지방 정상</span>' : '<span class="st-warn">체지방 ' + rec.fat + '%</span>') : '');
   setH('h-mus-st', rec.muscle != null ? '' : '');
-  setH('h-bp-st', bpSt(rec.sys));
-
   sv('s-bg', rec.bgFast ? '공복 ' + rec.bgFast : '미입력', 's-bg-c');
   sv('s-ib', rec.weight ? rec.weight + 'kg' + (rec.fat ? ' · 지방 ' + rec.fat + '%' : '') + (rec.muscle ? ' · 근육 ' + rec.muscle + 'kg' : '') : '미입력', 's-ib-c');
-  sv('s-bp', rec.sys ? rec.sys + '/' + rec.dia + ' mmHg' : '미입력', 's-bp-c');
-  sv('s-po', rec.poopEntries && rec.poopEntries.length > 0
-    ? rec.poopEntries.map(p => (p.time ? p.time + ' ' : '') + p.type).join(' / ')
-    : (rec.poop || '미입력'), 's-po-c');
   sv('s-lf', rec.sleep || rec.exercise || rec.exSessions ?
     (rec.sleep ? '수면 ' + rec.sleep + 'h ' : '') +
     (rec.exSessions ? rec.exSessions.filter(e=>e.type).map(e=>e.label+(e.type?' '+e.type:'')+(e.mins?' '+e.mins+'분':'')).join(' / ') :
@@ -1512,8 +1505,6 @@ function renderLog() {
     const tags = [];
     if (r.bgFast) tags.push('공복 ' + r.bgFast);
     if (r.weight) tags.push(r.weight + 'kg');
-    if (r.sys) tags.push('혈압 ' + r.sys);
-    if (r.poop) tags.push('배변:' + r.poop);
     if (S.suppList.length) tags.push('영양제 ' + ((r.suppDone||[]).length) + '/' + S.suppList.length);
     return `<div class="log-item">
       <div class="log-date-col">
