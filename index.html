@@ -755,6 +755,11 @@ function initInputDate() {
   const el = $('input-date');
   if (!el) return;
   el.value = today();
+  // 기준일 날짜 초기화
+  const baseEl = $('baseline-date');
+  if (baseEl && !baseEl.value) baseEl.value = '2025-05-09';
+  const bgBaseEl = $('bg-baseline-date');
+  if (bgBaseEl && !bgBaseEl.value) bgBaseEl.value = '2025-05-09';
   updateInputDateLabel();
 }
 function updateInputDateLabel() {
@@ -851,9 +856,9 @@ function calcInbody() {
 
   // 기준일 비교
   const baseEl = $('baseline-date');
-  const baseDate = baseEl ? baseEl.value : '2025-05-09';
+  const baseDate = (baseEl && baseEl.value) ? baseEl.value : '2025-05-09';
+  if (baseEl && !baseEl.value) baseEl.value = '2025-05-09';
   const baseRec = S.records.find(r => r.date === baseDate);
-  console.log('기준일:', baseDate, '기준일 레코드:', baseRec, '전체 레코드:', S.records.map(r=>r.date));
 
   const diffColor = (v, reverse) => {
     if (v === null || isNaN(v)) return '#888780';
@@ -895,8 +900,10 @@ function calcInbody() {
 
 
 function calcBgDiff() {
-  const todayVal = parseFloat($('i-bgf').value);
-  const baseDate = $('bg-baseline-date') ? $('bg-baseline-date').value : '2025-05-09';
+  const todayVal = parseFloat($('i-bgf') ? $('i-bgf').value : '');
+  const bgBaseEl = $('bg-baseline-date');
+  const baseDate = (bgBaseEl && bgBaseEl.value) ? bgBaseEl.value : '2025-05-09';
+  if (bgBaseEl && !bgBaseEl.value) bgBaseEl.value = '2025-05-09';
   const baseRec = S.records.find(r => r.date === baseDate);
   const baseVal = baseRec ? baseRec.bgFast : null;
 
