@@ -627,8 +627,9 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
         </button>
       </div>
       <div class="card" style="margin-top:12px">
-        <div class="card-title"><i class="fa-solid fa-calendar-days" style="color:#1a5276"></i> 최근 기록</div>
-        <div id="log-list"><div class="empty-state"><i class="fa-regular fa-calendar"></i>아직 기록이 없어요.</div></div>
+        <div class="card-title"><i class="fa-solid fa-bug" style="color:#e74c3c"></i> 저장된 데이터 확인</div>
+        <div id="debug-data" style="font-size:11px;color:#5d6d7e;word-break:break-all;line-height:1.8"></div>
+        <button onclick="showDebug()" style="width:100%;padding:10px;background:#e74c3c;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;font-family:'Noto Sans KR',sans-serif">데이터 확인</button>
       </div>
     </div>
 
@@ -967,6 +968,20 @@ function drawBgWeekChart() {
       }
     }
   });
+}
+
+
+function showDebug() {
+  const el = $('debug-data');
+  if (!el) return;
+  const dates = S.records.map(r => r.date);
+  const may9 = S.records.find(r => r.date === '2025-05-09');
+  el.innerHTML = `
+    <b>저장된 날짜 목록:</b><br>
+    ${dates.length ? dates.join('<br>') : '없음'}<br><br>
+    <b>5월9일 데이터:</b><br>
+    ${may9 ? `체중:${may9.weight} 근육:${may9.muscle} 체지방:${may9.fatMass} 혈당:${may9.bgFast}` : '없음'}
+  `;
 }
 
 
