@@ -444,6 +444,32 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
           <div class="form-row"><span class="form-label">수면 (시간)</span><input type="number" id="i-slp" placeholder="예: 7" min="0" max="12" step="0.5"></div>
         </div>
       </div>
+      <div class="section-label"><i class="fa-solid fa-clock" style="color:#1a5276"></i> 간헐적 단식</div>
+      <div class="card">
+        <div style="font-size:12px;color:#5d6d7e;margin-bottom:10px">단식 시작/종료 시간을 기록해요</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+          <div>
+            <div style="font-size:11px;color:#5d6d7e;margin-bottom:4px;font-weight:500">🍽️ 마지막 식사 (단식 시작)</div>
+            <input type="time" id="i-fast-start" style="width:100%;padding:10px;font-size:14px;border:1.5px solid #dce1e7;border-radius:10px;background:#fff;color:#1c2833;font-family:'Noto Sans KR',sans-serif;-webkit-appearance:none">
+            <div id="fast-start-label" style="font-size:10px;color:#5d6d7e;margin-top:3px;text-align:center"></div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#5d6d7e;margin-bottom:4px;font-weight:500">🥗 첫 식사 (단식 종료)</div>
+            <input type="time" id="i-fast-end" style="width:100%;padding:10px;font-size:14px;border:1.5px solid #dce1e7;border-radius:10px;background:#fff;color:#1c2833;font-family:'Noto Sans KR',sans-serif;-webkit-appearance:none">
+            <div id="fast-end-label" style="font-size:10px;color:#5d6d7e;margin-top:3px;text-align:center"></div>
+          </div>
+        </div>
+        <div id="fast-duration-display" style="background:#d6eaf8;border-radius:10px;padding:10px;text-align:center;display:none">
+          <span style="font-size:12px;color:#5d6d7e">단식 시간</span>
+          <div style="font-size:22px;font-weight:700;color:#1a5276" id="fast-duration">--</div>
+        </div>
+        <button onclick="setFastNow('start')" style="width:100%;padding:10px;background:#f0f4f8;border:1.5px solid #dce1e7;border-radius:10px;font-size:12px;color:#1a5276;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-top:8px;font-weight:500">
+          🕐 지금 시간으로 시작 시간 설정
+        </button>
+        <button onclick="setFastNow('end')" style="width:100%;padding:10px;background:#f0f4f8;border:1.5px solid #dce1e7;border-radius:10px;font-size:12px;color:#1e8449;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-top:6px;font-weight:500">
+          🕐 지금 시간으로 종료 시간 설정
+        </button>
+      </div>
       <div class="section-label"><i class="fa-solid fa-pen-to-square" style="color:#ca6f1e"></i> 오늘 컨디션</div>
       <div class="card">
         <div class="mood-row">
@@ -660,7 +686,54 @@ function goTab(t, btn) {
   if (t === 'history') initHistory();
   if (t === 'settings') { initSettings(); renderLog(); }}
 
-// ── mood selectors ──
+// ── 간헐적 단식 ──
+function nowTimeStr() {
+  const d = new Date();
+  const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  return kst.toISOString().slice(11,16);
+}
+function setFastNow(type) {
+  const t = nowTimeStr();
+  if (type === 'start') {
+    $('i-fast-start').value = t;
+  } else {
+    $('i-fast-end').value = t;
+  }
+  calcFastDuration();
+}
+function calcFastDuration() {
+  const start = $('i-fast-start').value;
+  const end = $('i-fast-end').value;
+  const disp = $('fast-duration-display');
+  if (!start || !end) { if(disp) disp.style.display='none'; return; }
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  let startMins = sh * 60 + sm;
+  let endMins = eh * 60 + em;
+  if (endMins <= startMins) endMins += 24 * 60; // 다음날
+  const diff = endMins - startMins;
+  const h = Math.floor(diff / 60);
+  const m = diff % 60;
+  if(disp) {
+    disp.style.display = 'block';
+    $('fast-duration').textContent = h + '시간 ' + (m > 0 ? m + '분' : '');
+  }
+  // 시간 레이블 업데이트
+  const startLabel = $('fast-start-label');
+  const endLabel = $('fast-end-label');
+  if(startLabel) startLabel.textContent = start ? start + ' 식사 종료' : '';
+  if(endLabel) endLabel.textContent = end ? end + ' 단식 종료' : '';
+}
+function initFasting(rec) {
+  const startEl = $('i-fast-start');
+  const endEl = $('i-fast-end');
+  if (!startEl || !endEl) return;
+  startEl.value = rec.fastStart || '';
+  endEl.value = rec.fastEnd || '';
+  calcFastDuration();
+}
+
+
 function selMood(el, v) {
   document.querySelectorAll('#page-input .mood-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected'); S.selectedMood = v;
@@ -691,6 +764,8 @@ function saveData() {
     rec.height = heightVal;
     if (rec.weight && rec.fatMass) rec.fat = Math.round((rec.fatMass / rec.weight) * 1000) / 10;
     if (rec.weight && heightVal) rec.bmi = Math.round((rec.weight / ((heightVal / 100) ** 2)) * 10) / 10;
+    if (gs('i-fast-start')) rec.fastStart = gs('i-fast-start');
+    if (gs('i-fast-end')) rec.fastEnd = gs('i-fast-end');
     if (S.selectedMood) rec.mood = S.selectedMood;
     const memoEl = $('i-memo');
     if (memoEl && memoEl.value.trim()) rec.memo = memoEl.value.trim();
@@ -791,6 +866,7 @@ function loadInputData(d) {
   if (rec.memo) $('i-memo').value = rec.memo; else $('i-memo').value = '';
   calcInbody();
   calcBgDiff();
+  initFasting(rec);
   // 기분 복원
   document.querySelectorAll('#page-input .mood-btn').forEach(b => b.classList.remove('selected'));
   if (rec.mood) {
