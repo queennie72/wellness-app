@@ -628,6 +628,21 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
         </button>
       </div>
       <div class="card" style="margin-top:12px">
+        <div class="card-title"><i class="fa-solid fa-shield-halved" style="color:#1e8449"></i> 데이터 백업 / 복원</div>
+        <div style="font-size:12px;color:#5d6d7e;margin-bottom:10px;line-height:1.6">
+          데이터를 텍스트로 복사해두면 혹시 사라져도 복원할 수 있어요!
+        </div>
+        <button onclick="exportData()" style="width:100%;padding:12px;background:#1e8449;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;font-family:'Noto Sans KR',sans-serif">
+          <i class="fa-solid fa-download"></i> 데이터 백업 (복사)
+        </button>
+        <div style="font-size:12px;color:#5d6d7e;margin-bottom:6px">복원할 때는 아래에 붙여넣기 후 복원 버튼을 눌러주세요</div>
+        <textarea id="restore-input" placeholder="백업한 데이터를 여기에 붙여넣기..." style="width:100%;height:80px;padding:8px;font-size:11px;border:1.5px solid #dce1e7;border-radius:10px;font-family:'Noto Sans KR',sans-serif;resize:none"></textarea>
+        <button onclick="importData()" style="width:100%;padding:12px;background:#b7770d;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;font-family:'Noto Sans KR',sans-serif">
+          <i class="fa-solid fa-upload"></i> 데이터 복원
+        </button>
+        <div id="backup-status" style="font-size:12px;margin-top:6px;text-align:center"></div>
+      </div>
+      <div class="card" style="margin-top:12px">
         <div class="card-title"><i class="fa-solid fa-bug" style="color:#e74c3c"></i> 저장된 데이터 확인</div>
         <div id="debug-data" style="font-size:11px;color:#5d6d7e;word-break:break-all;line-height:1.8"></div>
         <button onclick="showDebug()" style="width:100%;padding:10px;background:#e74c3c;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;font-family:'Noto Sans KR',sans-serif">데이터 확인</button>
@@ -980,6 +995,44 @@ function drawBgWeekChart() {
       }
     }
   });
+}
+
+
+function exportData() {
+  const data = localStorage.getItem('wellness_v3');
+  if (!data) { showToast('❌ 저장된 데이터가 없어요'); return; }
+  const el = $('restore-input');
+  if (el) el.value = data;
+  // 클립보드 복사 시도
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(data).then(() => {
+      $('backup-status').textContent = '✅ 클립보드에 복사됐어요! 메모장이나 카카오톡에 붙여넣어 보관하세요.';
+      $('backup-status').style.color = '#1e8449';
+    }).catch(() => {
+      $('backup-status').textContent = '📋 아래 텍스트를 전체 선택해서 복사해두세요!';
+      $('backup-status').style.color = '#b7770d';
+    });
+  } else {
+    $('backup-status').textContent = '📋 아래 텍스트를 전체 선택해서 복사해두세요!';
+    $('backup-status').style.color = '#b7770d';
+  }
+}
+
+function importData() {
+  const el = $('restore-input');
+  if (!el || !el.value.trim()) { showToast('❌ 복원할 데이터를 입력해주세요'); return; }
+  try {
+    const parsed = JSON.parse(el.value.trim());
+    if (!parsed.records) { showToast('❌ 올바른 데이터가 아니에요'); return; }
+    localStorage.setItem('wellness_v3', el.value.trim());
+    S = Object.assign(S, parsed);
+    updateHome(); updateStreak();
+    $('backup-status').textContent = '✅ 복원 완료! ' + parsed.records.length + '개 기록이 복원됐어요.';
+    $('backup-status').style.color = '#1e8449';
+    showToast('✅ 데이터 복원 완료!');
+  } catch(e) {
+    showToast('❌ 데이터 형식이 올바르지 않아요');
+  }
 }
 
 
