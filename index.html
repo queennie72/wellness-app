@@ -355,93 +355,46 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
 
       <div class="section-label"><i class="fa-solid fa-person-running" style="color:#922b21"></i> 운동</div>
       <div class="card">
-        <div style="font-size:12px;color:#5d6d7e;margin-bottom:10px">새벽 / 점심 / 저녁 운동을 각각 기록할 수 있어요</div>
-        <div id="exercise-sessions">
-          <div class="exercise-session" id="ex-session-1">
-            <div style="font-size:12px;font-weight:500;color:#922b21;margin-bottom:8px">🌙 새벽 운동</div>
-            <div class="form-row">
-              <span class="form-label">운동 종류</span>
-              <select id="i-ext1" style="-webkit-appearance:none">
-                <option value="">선택</option>
-                <option>달리기</option><option>F45</option><option>자전거</option>
-                <option>웨이트</option><option>수영</option><option>등산</option>
-                <option>걷기</option><option>요가/필라테스</option><option>골프</option><option>기타</option>
-              </select>
+        <div style="border-bottom:1px solid #dce1e7;padding-bottom:12px;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:#922b21;margin-bottom:8px">🏃 달리기</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <span style="font-size:11px;color:#5d6d7e">시간 (분)</span>
+              <input type="number" id="i-exc1" placeholder="예: 40" min="0" max="300" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-              <div style="display:flex;flex-direction:column;gap:3px">
-                <span style="font-size:11px;color:#5d6d7e">시간 (분)</span>
-                <input type="number" id="i-exc1" placeholder="예: 30" min="0" max="300" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
-              </div>
-              <div style="display:flex;flex-direction:column;gap:3px">
-                <span style="font-size:11px;color:#5d6d7e">거리 (km)</span>
-                <input type="number" id="i-dist1" placeholder="예: 5.2" min="0" step="0.1" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
-              </div>
-            </div>
-            <div class="form-row" style="margin-bottom:4px">
-              <span class="form-label">메모</span>
-              <input type="text" id="i-exmemo1" placeholder="예: 페이스 5:30" style="flex:1">
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <span style="font-size:11px;color:#5d6d7e">거리 (km)</span>
+              <input type="number" id="i-dist1" placeholder="예: 5.2" min="0" step="0.1" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
             </div>
           </div>
-          <div style="border-top:1px solid #dce1e7;padding-top:10px;margin-top:4px">
-            <div style="font-size:12px;font-weight:500;color:#922b21;margin-bottom:8px">☀️ 점심 운동</div>
-            <div class="form-row">
-              <span class="form-label">운동 종류</span>
-              <select id="i-ext2" style="-webkit-appearance:none">
-                <option value="">선택</option>
-                <option>달리기</option><option>F45</option><option>자전거</option>
-                <option>웨이트</option><option>수영</option><option>등산</option>
-                <option>걷기</option><option>요가/필라테스</option><option>골프</option><option>기타</option>
-              </select>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-              <div style="display:flex;flex-direction:column;gap:3px">
-                <span style="font-size:11px;color:#5d6d7e">시간 (분)</span>
-                <input type="number" id="i-exc2" placeholder="예: 30" min="0" max="300" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
-              </div>
-              <div style="display:flex;flex-direction:column;gap:3px">
-                <span style="font-size:11px;color:#5d6d7e">거리 (km)</span>
-                <input type="number" id="i-dist2" placeholder="예: 5.2" min="0" step="0.1" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
-              </div>
-            </div>
-            <div class="form-row" style="margin-bottom:4px">
-              <span class="form-label">메모</span>
-              <input type="text" id="i-exmemo2" placeholder="예: 페이스 5:30" style="flex:1">
-            </div>
-          </div>
-          <div style="border-top:1px solid #dce1e7;padding-top:10px;margin-top:4px">
-            <div style="font-size:12px;font-weight:500;color:#922b21;margin-bottom:8px">🌆 저녁 운동</div>
-            <div class="form-row">
-              <span class="form-label">운동 종류</span>
-              <select id="i-ext3" style="-webkit-appearance:none">
-                <option value="">선택</option>
-                <option>달리기</option><option>F45</option><option>자전거</option>
-                <option>웨이트</option><option>수영</option><option>등산</option>
-                <option>걷기</option><option>요가/필라테스</option><option>골프</option><option>기타</option>
-              </select>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-              <div style="display:flex;flex-direction:column;gap:3px">
-                <span style="font-size:11px;color:#5d6d7e">시간 (분)</span>
-                <input type="number" id="i-exc3" placeholder="예: 30" min="0" max="300" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
-              </div>
-              <div style="display:flex;flex-direction:column;gap:3px">
-                <span style="font-size:11px;color:#5d6d7e">거리 (km)</span>
-                <input type="number" id="i-dist3" placeholder="예: 5.2" min="0" step="0.1" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
-              </div>
-            </div>
-            <div class="form-row" style="margin-bottom:4px">
-              <span class="form-label">메모</span>
-              <input type="text" id="i-exmemo3" placeholder="예: 페이스 5:30" style="flex:1">
-            </div>
+          <div class="form-row" style="margin-bottom:0">
+            <span class="form-label">메모</span>
+            <input type="text" id="i-exmemo1" placeholder="예: 페이스 5:30, 한강" style="flex:1">
           </div>
         </div>
-        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #dce1e7">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
-            <span style="font-size:12px;color:#5d6d7e">이번달 누적 거리</span>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#922b21;margin-bottom:8px">💪 F45</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <span style="font-size:11px;color:#5d6d7e">시간 (분)</span>
+              <input type="number" id="i-exc2" placeholder="예: 45" min="0" max="300" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <span style="font-size:11px;color:#5d6d7e">칼로리 (kcal)</span>
+              <input type="number" id="i-cal2" placeholder="예: 350" min="0" style="width:100%;padding:8px;border:1.5px solid #dce1e7;border-radius:10px;font-size:13px;background:#fff">
+            </div>
+          </div>
+          <div class="form-row" style="margin-bottom:0">
+            <span class="form-label">메모</span>
+            <input type="text" id="i-exmemo2" placeholder="예: 상체, 하체" style="flex:1">
+          </div>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid #dce1e7">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0">
+            <span style="font-size:12px;color:#5d6d7e">이번달 달리기 누적 거리</span>
             <span id="monthly-dist" style="font-size:14px;font-weight:700;color:#1a5276">-- km</span>
           </div>
-          <div class="form-row"><span class="form-label">수면 (시간)</span><input type="number" id="i-slp" placeholder="예: 7" min="0" max="12" step="0.5"></div>
+          <div class="form-row" style="margin-top:8px"><span class="form-label">수면 (시간)</span><input type="number" id="i-slp" placeholder="예: 7" min="0" max="12" step="0.5"></div>
         </div>
       </div>
       <div class="section-label"><i class="fa-solid fa-clock" style="color:#1a5276"></i> 간헐적 단식</div>
@@ -770,19 +723,16 @@ function saveData() {
     const memoEl = $('i-memo');
     if (memoEl && memoEl.value.trim()) rec.memo = memoEl.value.trim();
     if (gv('i-slp') !== null) rec.sleep = gv('i-slp');
+    // 운동 저장 (달리기 + F45)
     const exSessions = [];
-    const exLabels = ['새벽', '점심', '저녁'];
-    for (let i = 1; i <= 3; i++) {
-      const type = gs('i-ext' + i);
-      const mins = gv('i-exc' + i);
-      const dist = gv('i-dist' + i);
-      const memo = gs('i-exmemo' + i);
-      if (type || mins || dist) exSessions.push({ label: exLabels[i-1], type, mins, dist, memo });
-    }
+    const runMins = gv('i-exc1'), runDist = gv('i-dist1'), runMemo = gs('i-exmemo1');
+    if (runMins || runDist) exSessions.push({ label: '달리기', type: '달리기', mins: runMins, dist: runDist, memo: runMemo });
+    const f45Mins = gv('i-exc2'), f45Cal = gv('i-cal2'), f45Memo = gs('i-exmemo2');
+    if (f45Mins || f45Cal) exSessions.push({ label: 'F45', type: 'F45', mins: f45Mins, cal: f45Cal, memo: f45Memo });
     if (exSessions.length > 0) {
       rec.exSessions = exSessions;
       rec.exercise = exSessions.reduce((s, e) => s + (e.mins || 0), 0);
-      rec.exDistTotal = exSessions.reduce((s, e) => s + (e.dist || 0), 0);
+      rec.exDistTotal = runDist || 0;
     }
     S.records.sort((a,b) => a.date.localeCompare(b.date));
     save(); updateStreak(); updateHome();
@@ -845,22 +795,26 @@ function loadInputData(d) {
   $('i-mus').value = rec.muscle || '';
   $('i-slp').value = rec.sleep || '';
   // 운동 3회 복원
-  for (let i = 1; i <= 3; i++) {
-    const el_ext = $('i-ext'+i), el_exc = $('i-exc'+i);
-    const el_dist = $('i-dist'+i), el_memo = $('i-exmemo'+i);
-    if (el_ext) el_ext.value = '';
-    if (el_exc) el_exc.value = '';
-    if (el_dist) el_dist.value = '';
-    if (el_memo) el_memo.value = '';
-  }
+  // 운동 복원 (달리기 + F45)
+  if ($('i-exc1')) $('i-exc1').value = '';
+  if ($('i-dist1')) $('i-dist1').value = '';
+  if ($('i-exmemo1')) $('i-exmemo1').value = '';
+  if ($('i-exc2')) $('i-exc2').value = '';
+  if ($('i-cal2')) $('i-cal2').value = '';
+  if ($('i-exmemo2')) $('i-exmemo2').value = '';
   if (rec.exSessions) {
-    rec.exSessions.forEach((s, idx) => {
-      const i = idx + 1;
-      if ($('i-ext'+i)) $('i-ext'+i).value = s.type || '';
-      if ($('i-exc'+i)) $('i-exc'+i).value = s.mins || '';
-      if ($('i-dist'+i)) $('i-dist'+i).value = s.dist || '';
-      if ($('i-exmemo'+i)) $('i-exmemo'+i).value = s.memo || '';
-    });
+    const run = rec.exSessions.find(s => s.type === '달리기');
+    const f45 = rec.exSessions.find(s => s.type === 'F45');
+    if (run) {
+      if ($('i-exc1')) $('i-exc1').value = run.mins || '';
+      if ($('i-dist1')) $('i-dist1').value = run.dist || '';
+      if ($('i-exmemo1')) $('i-exmemo1').value = run.memo || '';
+    }
+    if (f45) {
+      if ($('i-exc2')) $('i-exc2').value = f45.mins || '';
+      if ($('i-cal2')) $('i-cal2').value = f45.cal || '';
+      if ($('i-exmemo2')) $('i-exmemo2').value = f45.memo || '';
+    }
   }
   updateMonthlyDist();
   if (rec.memo) $('i-memo').value = rec.memo; else $('i-memo').value = '';
@@ -1308,7 +1262,7 @@ async function scanInbody(input) {
       r.readAsDataURL(file);
     });
 
-    const GEMINI_KEY = S.geminiKey || 'AIzaSyBiu2bjz3ukEEfk6FK2buONA4DoZo6HhvM';
+    const GEMINI_KEY = S.geminiKey || 'AIzaSyCx8icBSO-lWOGqRxIMVXNKBvBaqQShklo';
     if (!GEMINI_KEY) {
       status.style.color = '#e74c3c';
       status.textContent = '⚠️ API 키가 없어요. 설정 탭에서 키를 입력해주세요.';
