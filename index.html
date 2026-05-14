@@ -282,7 +282,7 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
         <div style="background:#E6F1FB;border-radius:10px;padding:12px;margin-top:8px;border:1px solid #B5D4F4">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <div style="font-size:12px;font-weight:500;color:#0C447C">📅 기준일 대비 혈당 변화</div>
-            <input type="date" id="bg-baseline-date" value="2025-05-09" style="font-size:11px;padding:3px 8px;border:1px solid #B5D4F4;border-radius:6px;background:white;color:#0C447C;font-family:'Noto Sans KR',sans-serif" onchange="calcBgDiff()">
+            <input type="date" id="bg-baseline-date" value="2026-05-09" style="font-size:11px;padding:3px 8px;border:1px solid #B5D4F4;border-radius:6px;background:white;color:#0C447C;font-family:'Noto Sans KR',sans-serif" onchange="calcBgDiff()">
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
             <div style="background:white;border-radius:8px;padding:8px;text-align:center">
@@ -331,7 +331,7 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <div style="font-size:12px;font-weight:500;color:#0C447C">📅 기준일 대비 변화</div>
             <div style="display:flex;align-items:center;gap:6px">
-              <input type="date" id="baseline-date" value="2025-05-09" style="font-size:11px;padding:3px 8px;border:1px solid #B5D4F4;border-radius:6px;background:white;color:#0C447C;font-family:'Noto Sans KR',sans-serif" onchange="calcInbody()">
+              <input type="date" id="baseline-date" value="2026-05-09" style="font-size:11px;padding:3px 8px;border:1px solid #B5D4F4;border-radius:6px;background:white;color:#0C447C;font-family:'Noto Sans KR',sans-serif" onchange="calcInbody()">
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="baseline-diff">
@@ -357,6 +357,7 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
             </div>
           </div>
         </div>
+        <div id="inbody-debug" style="display:none;font-size:10px;color:#e74c3c;background:#fadbd8;padding:6px;border-radius:6px;margin-top:6px;word-break:break-all"></div>
         <div style="font-size:11px;color:#5d6d7e;margin-top:4px;padding-left:4px">체지방률·BMI는 자동 계산돼요</div>
       </div>
 
@@ -668,8 +669,13 @@ if (!S.records) S.records = [];
 if (!S.userHeight) S.userHeight = 157;
 
 const save = () => { try { localStorage.setItem('wellness_v3', JSON.stringify(S)); } catch(e){} };
-const today = () => new Date().toISOString().slice(0,10);
+const today = () => {
+  const d = new Date();
+  const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  return kst.toISOString().slice(0,10);
+};
 const fmt = d => { const p = d.split('-'); return p[1]+'/'+p[2]; };
+const BASE_DATE = '2026-05-09';
 const $ = id => document.getElementById(id);
 const gv = id => { const el = $(id); if (!el) return null; const v = el.value; return v === '' ? null : parseFloat(v); };
 const gs = id => { const el = $(id); return el ? el.value : ''; };
@@ -758,9 +764,9 @@ function initInputDate() {
   el.value = today();
   // 기준일 날짜 초기화
   const baseEl = $('baseline-date');
-  if (baseEl && !baseEl.value) baseEl.value = '2025-05-09';
+  if (baseEl && !baseEl.value) baseEl.value = '2026-05-09';
   const bgBaseEl = $('bg-baseline-date');
-  if (bgBaseEl && !bgBaseEl.value) bgBaseEl.value = '2025-05-09';
+  if (bgBaseEl && !bgBaseEl.value) bgBaseEl.value = '2026-05-09';
   updateInputDateLabel();
 }
 function updateInputDateLabel() {
@@ -855,11 +861,17 @@ function calcInbody() {
     $('calc-bmi').textContent = '--';
   }
 
-  // 기준일 비교
+  // 기준일 비교 - 항상 BASE_DATE 사용
   const baseEl = $('baseline-date');
-  const baseDate = (baseEl && baseEl.value) ? baseEl.value : '2025-05-09';
-  if (baseEl && !baseEl.value) baseEl.value = '2025-05-09';
-  const baseRec = S.records.find(r => r.date === baseDate);
+  if (baseEl) baseEl.value = BASE_DATE;
+  const baseRec = S.records.find(r => r.date === BASE_DATE);
+
+  // 디버그: 저장된 날짜 확인
+  const debugEl = $('inbody-debug');
+  if (debugEl) {
+    debugEl.textContent = '저장날짜: ' + S.records.map(r=>r.date).join(', ') + ' | 기준:' + BASE_DATE + ' | 찾음:' + (baseRec ? '✅' : '❌');
+    debugEl.style.display = 'block';
+  }
 
   const diffColor = (v, reverse) => {
     if (v === null || isNaN(v)) return '#888780';
@@ -903,12 +915,12 @@ function calcInbody() {
 function calcBgDiff() {
   const todayVal = parseFloat($('i-bgf') ? $('i-bgf').value : '');
   const bgBaseEl = $('bg-baseline-date');
-  const baseDate = (bgBaseEl && bgBaseEl.value) ? bgBaseEl.value : '2025-05-09';
-  if (bgBaseEl && !bgBaseEl.value) bgBaseEl.value = '2025-05-09';
+  if (bgBaseEl && !bgBaseEl.value) bgBaseEl.value = BASE_DATE;
+  const baseDate = (bgBaseEl && bgBaseEl.value) ? bgBaseEl.value : BASE_DATE;
   const baseRec = S.records.find(r => r.date === baseDate);
   const baseVal = baseRec ? baseRec.bgFast : null;
 
-  $('bg-base-val').textContent = baseVal ? baseVal + ' mg/dL' : '기록없음';
+  $('bg-base-val').textContent = baseVal ? baseVal + ' mg/dL' : '없음';
   $('bg-today-val').textContent = todayVal > 0 ? todayVal + ' mg/dL' : '--';
 
   if (todayVal > 0 && baseVal) {
@@ -917,7 +929,7 @@ function calcBgDiff() {
     $('bg-diff-val').textContent = sign + diff + ' mg/dL';
     $('bg-diff-val').style.color = diff > 0 ? '#e74c3c' : (diff < 0 ? '#1e8449' : '#888780');
   } else {
-    $('bg-diff-val').textContent = '-';
+    $('bg-diff-val').textContent = baseVal ? '오늘 입력필요' : '5/9 기록없음';
     $('bg-diff-val').style.color = '#888780';
   }
 }
@@ -975,7 +987,7 @@ function showDebug() {
   const el = $('debug-data');
   if (!el) return;
   const dates = S.records.map(r => r.date);
-  const may9 = S.records.find(r => r.date === '2025-05-09');
+  const may9 = S.records.find(r => r.date === '2026-05-09');
   el.innerHTML = `
     <b>저장된 날짜 목록:</b><br>
     ${dates.length ? dates.join('<br>') : '없음'}<br><br>
@@ -1043,7 +1055,7 @@ function renderHistory() {
   }
 
   // 기준일 비교 (5/9)
-  const baseRec = S.records.find(r => r.date === '2025-05-09') || {};
+  const baseRec = S.records.find(r => r.date === '2026-05-09') || {};
   const diff = (v, base, reverse) => {
     if (v == null || base == null) return '';
     const d = Math.round((v - base) * 10) / 10;
