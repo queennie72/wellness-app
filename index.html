@@ -217,11 +217,6 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
           <div class="metric-value" id="h-mus">--<span class="metric-unit"> kg</span></div>
           <div class="metric-status" id="h-mus-st"></div>
         </div>
-        <div class="metric-card">
-          <div class="metric-label"><i class="fa-solid fa-capsules" style="color:#6c3483"></i> 영양제</div>
-          <div class="metric-value" id="h-sp-val">--</div>
-          <div class="prog-wrap" id="h-sp-prog-wrap" style="display:none"><div class="prog-bar" id="h-sp-prog" style="width:0%"></div></div>
-        </div>
       </div>
 
       <div class="card">
@@ -235,15 +230,6 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
           <div class="summary-icon" style="background:#d5f5e3"><i class="fa-solid fa-weight-scale" style="color:#1e8449"></i></div>
           <div class="summary-info"><div class="summary-name">인바디</div><div class="summary-val" id="s-ib">미입력</div></div>
           <span class="check-icon" id="s-ib-c"></span>
-        </div>
-        <div class="summary-row" onclick="goTab('supp',document.getElementById('nav-supp'))" style="cursor:pointer">
-          <div class="summary-icon" style="background:#f4ecf7"><i class="fa-solid fa-capsules" style="color:#6c3483"></i></div>
-          <div class="summary-info">
-            <div class="summary-name">영양제</div>
-            <div class="summary-val" id="s-sp">미입력</div>
-            <div class="prog-wrap" id="s-sp-prog-wrap" style="display:none"><div class="prog-bar" id="s-sp-prog" style="width:0%"></div></div>
-          </div>
-          <span class="check-icon" id="s-sp-c"></span>
         </div>
         <div class="summary-row" onclick="goTab('input',document.getElementById('nav-input'))" style="cursor:pointer">
           <div class="summary-icon" style="background:#fadbd8"><i class="fa-solid fa-person-running" style="color:#922b21"></i></div>
@@ -479,41 +465,6 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
       <div style="height:8px"></div>
     </div>
 
-    <!-- ══ 영양제 ══ -->
-    <div class="page" id="page-supp">
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-capsules" style="color:#6c3483"></i> 오늘 영양제 체크</div>
-        <div id="supp-checklist"><div class="empty-state"><i class="fa-regular fa-circle"></i>아래에서 영양제를 추가해보세요!</div></div>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-plus" style="color:#1a5276"></i> 영양제 목록 관리</div>
-        <div class="preset-chips" id="preset-chips">
-          <div class="chip" onclick="addPreset('비타민D')">+ 비타민D</div>
-          <div class="chip" onclick="addPreset('오메가3')">+ 오메가3</div>
-          <div class="chip" onclick="addPreset('마그네슘')">+ 마그네슘</div>
-          <div class="chip" onclick="addPreset('비타민C')">+ 비타민C</div>
-          <div class="chip" onclick="addPreset('프로바이오틱스')">+ 프로바이오틱스</div>
-          <div class="chip" onclick="addPreset('콜라겐')">+ 콜라겐</div>
-          <div class="chip" onclick="addPreset('루테인')">+ 루테인</div>
-          <div class="chip" onclick="addPreset('철분')">+ 철분</div>
-          <div class="chip" onclick="addPreset('칼슘')">+ 칼슘</div>
-        </div>
-        <div class="add-row">
-          <input type="text" id="new-supp-name" placeholder="영양제 이름 직접 입력">
-          <select id="new-supp-time">
-            <option value="아침">아침</option><option value="점심">점심</option>
-            <option value="저녁">저녁</option><option value="취침전">취침전</option>
-          </select>
-          <button class="add-btn" onclick="addSupp()">+ 추가</button>
-        </div>
-        <div id="supp-manage-list"></div>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-chart-bar" style="color:#6c3483"></i> 복용률 추이 (14일)</div>
-        <div class="chart-wrap"><canvas id="chart-supp" role="img" aria-label="영양제 복용률 추이"></canvas></div>
-      </div>
-    </div>
-
     <!-- ══ 메모 ══ -->
     <div class="page" id="page-memo">
       <div class="card">
@@ -656,9 +607,6 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
     <button onclick="goTab('input',this)" id="nav-input">
       <i class="fa-solid fa-plus"></i>입력
     </button>
-    <button onclick="goTab('supp',this)" id="nav-supp">
-      <i class="fa-solid fa-capsules"></i>영양제
-    </button>
     <button onclick="goTab('memo',this)" id="nav-memo">
       <i class="fa-solid fa-pen-to-square"></i>메모
     </button>
@@ -677,9 +625,8 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
 <div class="toast" id="toast"></div>
 
 <script>
-let S = { records: [], suppList: [], selectedMood: '', memoDateOffset: 0, userHeight: 157 };
+let S = { records: [], selectedMood: '', memoDateOffset: 0, userHeight: 157 };
 try { const s = localStorage.getItem('wellness_v3'); if (s) S = Object.assign(S, JSON.parse(s)); } catch(e){}
-if (!S.suppList) S.suppList = [];
 if (!S.records) S.records = [];
 if (!S.userHeight) S.userHeight = 157;
 
@@ -706,7 +653,6 @@ function goTab(t, btn) {
   btn.classList.add('active');
   $('page-' + t).parentElement.scrollTop = 0;
   if (t === 'chart') setTimeout(drawCharts, 60);
-  if (t === 'supp') { renderSuppChecklist(); renderSuppManage(); setTimeout(drawSuppChart, 60); }
   if (t === 'memo') renderMemoPage();
   if (t === 'log') renderLog();
   if (t === 'home') updateHome();
@@ -1409,66 +1355,6 @@ function renderMemoHistory() {
   }).join('');
 }
 
-// ── supplement ──
-function addPreset(name) {
-  if (S.suppList.find(s => s.name === name)) { showToast(name + '은(는) 이미 있어요'); return; }
-  S.suppList.push({ id: Date.now(), name, time: '아침' });
-  save(); renderSuppChecklist(); renderSuppManage(); updateHome();
-  showToast('💊 ' + name + ' 추가됨!');
-}
-function addSupp() {
-  const name = $('new-supp-name').value.trim(), time = $('new-supp-time').value;
-  if (!name) { showToast('이름을 입력해주세요'); return; }
-  if (S.suppList.find(s => s.name === name)) { showToast('이미 있는 영양제예요'); return; }
-  S.suppList.push({ id: Date.now(), name, time });
-  $('new-supp-name').value = '';
-  save(); renderSuppChecklist(); renderSuppManage(); updateHome();
-  showToast('💊 ' + name + ' 추가됨!');
-}
-function delSupp(id) {
-  S.suppList = S.suppList.filter(s => s.id !== id);
-  save(); renderSuppChecklist(); renderSuppManage(); updateHome();
-}
-function toggleSupp(id) {
-  const d = today();
-  let rec = S.records.find(r => r.date === d);
-  if (!rec) { rec = { date: d }; S.records.push(rec); S.records.sort((a,b) => a.date.localeCompare(b.date)); }
-  if (!rec.suppDone) rec.suppDone = [];
-  const idx = rec.suppDone.indexOf(id);
-  if (idx > -1) rec.suppDone.splice(idx, 1); else rec.suppDone.push(id);
-  save(); renderSuppChecklist(); updateHome();
-}
-function renderSuppChecklist() {
-  const d = today(), rec = S.records.find(r => r.date === d) || {}, done = rec.suppDone || [];
-  const el = $('supp-checklist');
-  if (!S.suppList.length) { el.innerHTML = '<div class="empty-state"><i class="fa-regular fa-circle"></i>아래에서 영양제를 추가해보세요!</div>'; return; }
-  const total = S.suppList.length, checked = done.filter(id => S.suppList.find(s => s.id === id)).length;
-  const pct = total ? Math.round(checked / total * 100) : 0;
-  el.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:8px">
-    <span style="font-size:12px;color:#5d6d7e">${checked}/${total}개 복용 완료</span>
-    <span style="font-size:13px;font-weight:700;color:${pct===100?'#1e8449':'#1a5276'}">${pct}%</span>
-  </div>
-  <div class="prog-wrap" style="margin-bottom:14px"><div class="prog-bar ${pct===100?'full':''}" style="width:${pct}%"></div></div>` +
-  S.suppList.map(s => {
-    const isDone = done.includes(s.id);
-    return `<div class="supp-item">
-      <div class="supp-check ${isDone?'done':''}" onclick="toggleSupp(${s.id})">${isDone?'<i class="fa-solid fa-check"></i>':''}</div>
-      <span class="supp-name">${s.name}</span>
-      <span class="supp-time-badge ${isDone?'done':''}">${s.time}</span>
-    </div>`;
-  }).join('');
-}
-function renderSuppManage() {
-  const el = $('supp-manage-list');
-  if (!S.suppList.length) { el.innerHTML = ''; return; }
-  el.innerHTML = '<div style="border-top:1px solid #dce1e7;margin-top:8px;padding-top:8px">' +
-  S.suppList.map(s => `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #dce1e7">
-    <span style="flex:1;font-size:12px;font-weight:500">${s.name}</span>
-    <span style="font-size:11px;color:#5d6d7e">${s.time}</span>
-    <button class="icon-btn" onclick="delSupp(${s.id})" aria-label="${s.name} 삭제"><i class="fa-regular fa-trash-can"></i></button>
-  </div>`).join('') + '</div>';
-}
-
 // ── home update ──
 function bgSt(v) {
   if (v == null) return '';
@@ -1504,23 +1390,6 @@ function updateHome() {
   const moodEmoji = {'최고':'😄 최고','좋음':'🙂 좋음','보통':'😐 보통','나쁨':'😞 나쁨'};
   sv('s-memo', rec.memo ? (rec.mood ? moodEmoji[rec.mood] + ' · ' : '') + rec.memo.slice(0,30) + (rec.memo.length > 30 ? '...' : '') : (rec.mood ? moodEmoji[rec.mood] : '미입력'), 's-memo-c');
 
-  const total = S.suppList.length, done = (rec.suppDone || []).filter(id => S.suppList.find(s => s.id === id)).length;
-  if (total === 0) {
-    $('h-sp-val').innerHTML = '--';
-    $('h-sp-prog-wrap').style.display = 'none';
-    $('s-sp').textContent = '영양제 없음'; $('s-sp-c').textContent = '';
-    $('s-sp-prog-wrap').style.display = 'none';
-  } else {
-    const pct = Math.round(done / total * 100);
-    $('h-sp-val').innerHTML = done + '<span class="metric-unit">/' + total + '</span>';
-    $('h-sp-prog-wrap').style.display = 'block';
-    $('h-sp-prog').style.width = pct + '%';
-    $('h-sp-prog').className = 'prog-bar' + (pct === 100 ? ' full' : '');
-    $('s-sp').textContent = done + '/' + total + '개 복용';
-    $('s-sp-c').textContent = pct === 100 ? '✅' : '';
-    $('s-sp-prog-wrap').style.display = 'block';
-    $('s-sp-prog').style.width = pct + '%';
-  }
   updateStreak();
 }
 function updateStreak() {
@@ -1581,15 +1450,6 @@ function drawCharts() {
   mk('chart-fatpct','line',{labels,datasets:[
     {data:recs.map(r=>r.fat??null),borderColor:'#d68910',backgroundColor:'#d6891022',tension:0.3,fill:true,spanGaps:true,pointRadius:4,borderWidth:2}
   ]},{scales:{y:{ticks:{font:{size:10},callback:v=>v+'%'}},x:{ticks:{font:{size:10},maxRotation:0}}}});
-}
-function drawSuppChart() {
-  const recs = S.records.slice(-14), labels = recs.map(r => fmt(r.date));
-  const rates = recs.map(r => {
-    const total = S.suppList.length; if (!total) return null;
-    const done = (r.suppDone||[]).filter(id => S.suppList.find(s => s.id === id)).length;
-    return Math.round(done / total * 100);
-  });
-  mk('chart-supp','bar',{labels,datasets:[{label:'복용률(%)',data:rates,backgroundColor:rates.map(v=>v===null?'#dce1e7':v===100?'#1e8449':v>=50?'#2e86c1':'#e67e22'),borderRadius:5}]},{scales:{y:{min:0,max:100,ticks:{stepSize:25,font:{size:10},callback:v=>v+'%'}},x:{ticks:{font:{size:10},maxRotation:0}}}});
 }
 
 // ── log ──
