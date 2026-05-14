@@ -1024,13 +1024,21 @@ function importData() {
   try {
     const parsed = JSON.parse(el.value.trim());
     if (!parsed.records) { showToast('❌ 올바른 데이터가 아니에요'); return; }
-    localStorage.setItem('wellness_v3', el.value.trim());
-    S = Object.assign(S, parsed);
+    // 기존 키와 설정은 유지하고 기록만 복원
+    const geminiKey = S.geminiKey;
+    const userHeight = S.userHeight;
+    S = parsed;
+    if (geminiKey) S.geminiKey = geminiKey;
+    if (userHeight) S.userHeight = userHeight;
+    localStorage.setItem('wellness_v3', JSON.stringify(S));
     updateHome(); updateStreak();
-    $('backup-status').textContent = '✅ 복원 완료! ' + parsed.records.length + '개 기록이 복원됐어요.';
+    const count = parsed.records ? parsed.records.length : 0;
+    $('backup-status').textContent = '✅ 복원 완료! ' + count + '개 기록이 복원됐어요.';
     $('backup-status').style.color = '#1e8449';
-    showToast('✅ 데이터 복원 완료!');
+    showToast('✅ ' + count + '개 기록 복원 완료!');
   } catch(e) {
+    $('backup-status').textContent = '❌ 데이터 형식 오류: ' + e.message;
+    $('backup-status').style.color = '#e74c3c';
     showToast('❌ 데이터 형식이 올바르지 않아요');
   }
 }
@@ -1278,7 +1286,7 @@ async function scanInbody(input) {
       r.readAsDataURL(file);
     });
 
-    const GEMINI_KEY = S.geminiKey || '';
+    const GEMINI_KEY = S.geminiKey || 'AIzaSyBiu2bjz3ukEEfk6FK2buONA4DoZo6HhvM';
     if (!GEMINI_KEY) {
       status.style.color = '#e74c3c';
       status.textContent = '⚠️ API 키가 없어요. 설정 탭에서 키를 입력해주세요.';
