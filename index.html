@@ -667,7 +667,7 @@ function goTab(t, btn) {
   if (t === 'memo') renderMemoPage();
   if (t === 'log') renderLog();
   if (t === 'home') updateHome();
-  if (t === 'input') { initInputDate(); setTimeout(() => { drawBgWeekChart(); drawInbodyWeekChart(); calcBgDiff(); calcInbody(); }, 60); }
+  if (t === 'input') { initInputDate(); setTimeout(() => { drawBgWeekChart(); drawInbodyWeekChart(); calcBgDiff(); calcInbody(); }, 200); }
   if (t === 'history') initHistory();
   if (t === 'settings') { initSettings(); renderLog(); }}
 
@@ -785,9 +785,16 @@ function saveData() {
     if (S.selectedMood) rec.mood = S.selectedMood;
     const memoEl = $('i-memo');
     if (memoEl && memoEl.value.trim()) rec.memo = memoEl.value.trim();
-    if (gv('i-slp') !== null) rec.sleep = gv('i-slp');
     if (gs('i-sleep-start')) rec.sleepStart = gs('i-sleep-start');
     if (gs('i-sleep-end')) rec.sleepEnd = gs('i-sleep-end');
+    // 수면 시간 자동 계산
+    if (rec.sleepStart && rec.sleepEnd) {
+      const [sh, sm] = rec.sleepStart.split(':').map(Number);
+      const [eh, em] = rec.sleepEnd.split(':').map(Number);
+      let startMins = sh * 60 + sm, endMins = eh * 60 + em;
+      if (endMins <= startMins) endMins += 24 * 60;
+      rec.sleep = Math.round((endMins - startMins) / 60 * 10) / 10;
+    }
     // 운동 저장 (달리기 + F45)
     const exSessions = [];
     const runMins = gv('i-exc1'), runDist = gv('i-dist1'), runMemo = gs('i-exmemo1');
@@ -853,43 +860,30 @@ function setInputDate(t) {
 }
 function loadInputData(d) {
   const rec = S.records.find(r => r.date === d) || {};
-  const bgEl = $('i-bgf');
-  if (bgEl) bgEl.value = rec.bgFast || '';
-  $('i-wt').value = rec.weight || '';
-  $('i-fatmass').value = rec.fatMass || '';
-  $('i-mus').value = rec.muscle || '';
-  $('i-slp').value = rec.sleep || '';
-  // 운동 3회 복원
-  // 운동 복원 (달리기 + F45)
-  if ($('i-exc1')) $('i-exc1').value = '';
-  if ($('i-dist1')) $('i-dist1').value = '';
-  if ($('i-exmemo1')) $('i-exmemo1').value = '';
-  if ($('i-exc2')) $('i-exc2').value = '';
-  if ($('i-cal2')) $('i-cal2').value = '';
-  if ($('i-exmemo2')) $('i-exmemo2').value = '';
+  const set = (id, val) => { const el = $(id); if (el) el.value = val || ''; };
+  set('i-bgf', rec.bgFast);
+  set('i-wt', rec.weight);
+  set('i-fatmass', rec.fatMass);
+  set('i-mus', rec.muscle);
+  set('i-slp', rec.sleep);
+  set('i-exc1', ''); set('i-dist1', ''); set('i-exmemo1', '');
+  set('i-exc2', ''); set('i-cal2', ''); set('i-exmemo2', '');
   if (rec.exSessions) {
     const run = rec.exSessions.find(s => s.type === '달리기');
     const f45 = rec.exSessions.find(s => s.type === 'F45');
-    if (run) {
-      if ($('i-exc1')) $('i-exc1').value = run.mins || '';
-      if ($('i-dist1')) $('i-dist1').value = run.dist || '';
-      if ($('i-exmemo1')) $('i-exmemo1').value = run.memo || '';
-    }
-    if (f45) {
-      if ($('i-exc2')) $('i-exc2').value = f45.mins || '';
-      if ($('i-cal2')) $('i-cal2').value = f45.cal || '';
-      if ($('i-exmemo2')) $('i-exmemo2').value = f45.memo || '';
-    }
+    if (run) { set('i-exc1', run.mins); set('i-dist1', run.dist); set('i-exmemo1', run.memo); }
+    if (f45) { set('i-exc2', f45.mins); set('i-cal2', f45.cal); set('i-exmemo2', f45.memo); }
   }
   updateMonthlyDist();
-  if (rec.memo) $('i-memo').value = rec.memo; else $('i-memo').value = '';
-  if ($('i-sleep-start')) $('i-sleep-start').value = rec.sleepStart || '';
-  if ($('i-sleep-end')) $('i-sleep-end').value = rec.sleepEnd || '';
+  set('i-memo', rec.memo);
+  set('i-sleep-start', rec.sleepStart);
+  set('i-sleep-end', rec.sleepEnd);
+  set('i-fast-start', rec.fastStart);
+  set('i-fast-end', rec.fastEnd);
   calcSleepDuration();
   calcInbody();
   calcBgDiff();
-  initFasting(rec);
-  // 기분 복원
+  calcFastDuration();
   document.querySelectorAll('#page-input .mood-btn').forEach(b => b.classList.remove('selected'));
   if (rec.mood) {
     document.querySelectorAll('#page-input .mood-btn').forEach(b => {
@@ -996,10 +990,12 @@ function calcBgDiff() {
 function drawBgWeekChart() {
   const el = document.getElementById('chart-bg-week');
   if (!el) return;
-  const recs = S.records.slice(-7);
+  const sorted = [...S.records].sort((a,b) => a.date.localeCompare(b.date));
+  const recs = sorted.slice(-7);
+  if (recs.length === 0) return;
   const labels = recs.map(r => fmt(r.date));
   const data = recs.map(r => r.bgFast ?? null);
-  if (charts['bg-week']) charts['bg-week'].destroy();
+  if (charts['bg-week']) { charts['bg-week'].destroy(); charts['bg-week'] = null; }
   charts['bg-week'] = new Chart(el, {
     type: 'line',
     data: { labels, datasets: [{
@@ -1287,13 +1283,15 @@ function updateMonthlyDist() {
 function drawInbodyWeekChart() {
   const el = document.getElementById('chart-inbody-week');
   if (!el) return;
-  const recs = S.records.slice(-7);
+  const sorted = [...S.records].sort((a,b) => a.date.localeCompare(b.date));
+  const recs = sorted.slice(-7);
+  if (recs.length === 0) return;
   const labels = recs.map(r => fmt(r.date));
   const legEl = document.getElementById('leg-inbody-week');
   if (legEl) legEl.innerHTML = [
     {c:'#1e8449',l:'체중(kg)'},{c:'#185FA5',l:'골격근(kg)'},{c:'#e74c3c',l:'체지방량(kg)'},{c:'#d68910',l:'체지방률(%)'}
   ].map(i=>`<div class="legend-item"><div class="legend-dot" style="background:${i.c}"></div>${i.l}</div>`).join('');
-  if (charts['inbody-week']) charts['inbody-week'].destroy();
+  if (charts['inbody-week']) { charts['inbody-week'].destroy(); charts['inbody-week'] = null; }
   charts['inbody-week'] = new Chart(el, {
     type: 'line',
     data: { labels, datasets: [
