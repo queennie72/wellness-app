@@ -639,6 +639,7 @@ let S = { records: [], selectedMood: '', memoDateOffset: 0, userHeight: 157 };
 try { const s = localStorage.getItem('wellness_v3'); if (s) S = Object.assign(S, JSON.parse(s)); } catch(e){}
 if (!S.records) S.records = [];
 if (!S.userHeight) S.userHeight = 157;
+let charts = {};
 
 const save = () => { try { localStorage.setItem('wellness_v3', JSON.stringify(S)); } catch(e){} };
 const today = () => {
@@ -1499,7 +1500,6 @@ function updateStreak() {
 }
 
 // ── charts ──
-let charts = {};
 function mkLeg(id, items) {
   $(id).innerHTML = items.map(i => `<div class="legend-item"><div class="legend-dot" style="background:${i.c}"></div>${i.l}</div>`).join('');
 }
