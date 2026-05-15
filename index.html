@@ -495,6 +495,11 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
         <div class="card-title"><i class="fa-solid fa-percent" style="color:#d68910"></i> 체지방률 추이 (14일)</div>
         <div class="chart-wrap"><canvas id="chart-fatpct" role="img" aria-label="체지방률 추이 차트"></canvas></div>
       </div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-clock" style="color:#1a5276"></i> 간헐적 단식 추이 (14일)</div>
+        <div style="font-size:11px;color:#5d6d7e;margin-bottom:8px">공복 시간 (시작~종료 기준)</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="chart-fasting" role="img" aria-label="단식 추이 차트"></canvas></div>
+      </div>
     </div>
 
     <!-- ══ 기록 ══ -->
@@ -1480,6 +1485,42 @@ function drawCharts() {
   mk('chart-fatpct','line',{labels,datasets:[
     {data:recs.map(r=>r.fat??null),borderColor:'#d68910',backgroundColor:'#d6891022',tension:0.3,fill:true,spanGaps:true,pointRadius:4,borderWidth:2}
   ]},{scales:{y:{ticks:{font:{size:10},callback:v=>v+'%'}},x:{ticks:{font:{size:10},maxRotation:0}}}});
+
+  // 단식 시간
+  const fastData = recs.map(r => {
+    if (!r.fastStart || !r.fastEnd) return null;
+    const [sh, sm] = r.fastStart.split(':').map(Number);
+    const [eh, em] = r.fastEnd.split(':').map(Number);
+    let startMins = sh * 60 + sm;
+    let endMins = eh * 60 + em;
+    if (endMins <= startMins) endMins += 24 * 60;
+    return Math.round((endMins - startMins) / 60 * 10) / 10;
+  });
+  mk('chart-fasting','bar',{labels,datasets:[{
+    label:'단식시간',
+    data:fastData,
+    backgroundColor: fastData.map(v => v === null ? '#dce1e7' : v >= 16 ? '#1e8449' : v >= 12 ? '#2e86c1' : v >= 10 ? '#b7770d' : '#e74c3c'),
+    borderRadius:6,
+    borderSkipped:false
+  }]},{
+    scales:{
+      y:{
+        min:0, suggestedMax:20,
+        ticks:{font:{size:10}, callback:v=>v+'h'},
+        grid:{color:'#f0f4f8'}
+      },
+      x:{ticks:{font:{size:10},maxRotation:0}}
+    },
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx => {
+        const v = ctx.raw;
+        if (!v) return '기록없음';
+        const h = Math.floor(v), m = Math.round((v-h)*60);
+        return '공복 ' + h + '시간' + (m>0?' '+m+'분':'');
+      }}}
+    }
+  });
 }
 
 // ── log ──
