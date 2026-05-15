@@ -394,7 +394,28 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
             <span style="font-size:12px;color:#5d6d7e">이번달 달리기 누적 거리</span>
             <span id="monthly-dist" style="font-size:14px;font-weight:700;color:#1a5276">-- km</span>
           </div>
-          <div class="form-row" style="margin-top:8px"><span class="form-label">수면 (시간)</span><input type="number" id="i-slp" placeholder="예: 7" min="0" max="12" step="0.5"></div>
+        </div>
+      </div>
+
+      <div class="section-label"><i class="fa-solid fa-moon" style="color:#1a5276"></i> 수면</div>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+          <div>
+            <div style="font-size:11px;color:#5d6d7e;margin-bottom:4px;font-weight:500">🌙 취침 시간</div>
+            <input type="time" id="i-sleep-start" style="width:100%;padding:10px;font-size:14px;border:1.5px solid #dce1e7;border-radius:10px;background:#fff;color:#1c2833;font-family:'Noto Sans KR',sans-serif;-webkit-appearance:none" oninput="calcSleepDuration()">
+          </div>
+          <div>
+            <div style="font-size:11px;color:#5d6d7e;margin-bottom:4px;font-weight:500">☀️ 기상 시간</div>
+            <input type="time" id="i-sleep-end" style="width:100%;padding:10px;font-size:14px;border:1.5px solid #dce1e7;border-radius:10px;background:#fff;color:#1c2833;font-family:'Noto Sans KR',sans-serif;-webkit-appearance:none" oninput="calcSleepDuration()">
+          </div>
+        </div>
+        <div id="sleep-duration-display" style="background:#d6eaf8;border-radius:10px;padding:10px;text-align:center;display:none">
+          <span style="font-size:12px;color:#5d6d7e">수면 시간</span>
+          <div style="font-size:22px;font-weight:700;color:#1a5276" id="sleep-duration-text">--</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button onclick="setSleepNow('start')" style="flex:1;padding:9px;background:#f0f4f8;border:1.5px solid #dce1e7;border-radius:10px;font-size:11px;color:#1a5276;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:500">🌙 지금 취침</button>
+          <button onclick="setSleepNow('end')" style="flex:1;padding:9px;background:#f0f4f8;border:1.5px solid #dce1e7;border-radius:10px;font-size:11px;color:#1e8449;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:500">☀️ 지금 기상</button>
         </div>
       </div>
       <div class="section-label"><i class="fa-solid fa-clock" style="color:#1a5276"></i> 간헐적 단식</div>
@@ -494,6 +515,11 @@ textarea { resize: none; line-height: 1.5; min-height: 80px; }
       <div class="card">
         <div class="card-title"><i class="fa-solid fa-percent" style="color:#d68910"></i> 체지방률 추이 (14일)</div>
         <div class="chart-wrap"><canvas id="chart-fatpct" role="img" aria-label="체지방률 추이 차트"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-moon" style="color:#1a5276"></i> 수면 추이 (14일)</div>
+        <div style="font-size:11px;color:#5d6d7e;margin-bottom:8px">수면 시간 (취침~기상 기준) · 초록 7h+ / 노랑 6h+ / 빨강 6h 미만</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="chart-sleep" role="img" aria-label="수면 추이 차트"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title"><i class="fa-solid fa-clock" style="color:#1a5276"></i> 간헐적 단식 추이 (14일)</div>
@@ -644,7 +670,38 @@ function goTab(t, btn) {
   if (t === 'history') initHistory();
   if (t === 'settings') { initSettings(); renderLog(); }}
 
-// ── 간헐적 단식 ──
+// ── 수면 시간 계산 ──
+function setSleepNow(type) {
+  const t = nowTimeStr();
+  if (type === 'start') $('i-sleep-start').value = t;
+  else $('i-sleep-end').value = t;
+  calcSleepDuration();
+}
+function calcSleepDuration() {
+  const start = $('i-sleep-start') ? $('i-sleep-start').value : '';
+  const end = $('i-sleep-end') ? $('i-sleep-end').value : '';
+  const disp = $('sleep-duration-display');
+  if (!start || !end) { if(disp) disp.style.display='none'; return; }
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  let startMins = sh * 60 + sm;
+  let endMins = eh * 60 + em;
+  if (endMins <= startMins) endMins += 24 * 60; // 다음날 기상
+  const diff = endMins - startMins;
+  const h = Math.floor(diff / 60);
+  const m = diff % 60;
+  const total = Math.round(diff / 60 * 10) / 10;
+  if(disp) {
+    disp.style.display = 'block';
+    $('sleep-duration-text').textContent = h + '시간' + (m > 0 ? ' ' + m + '분' : '');
+    $('sleep-duration-text').style.color = total >= 7 ? '#1e8449' : total >= 6 ? '#b7770d' : '#e74c3c';
+  }
+  // i-slp에도 저장
+  const slpEl = $('i-slp');
+  if (slpEl) slpEl.value = total;
+}
+
+
 function nowTimeStr() {
   const d = new Date();
   const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
@@ -728,6 +785,8 @@ function saveData() {
     const memoEl = $('i-memo');
     if (memoEl && memoEl.value.trim()) rec.memo = memoEl.value.trim();
     if (gv('i-slp') !== null) rec.sleep = gv('i-slp');
+    if (gs('i-sleep-start')) rec.sleepStart = gs('i-sleep-start');
+    if (gs('i-sleep-end')) rec.sleepEnd = gs('i-sleep-end');
     // 운동 저장 (달리기 + F45)
     const exSessions = [];
     const runMins = gv('i-exc1'), runDist = gv('i-dist1'), runMemo = gs('i-exmemo1');
@@ -823,6 +882,9 @@ function loadInputData(d) {
   }
   updateMonthlyDist();
   if (rec.memo) $('i-memo').value = rec.memo; else $('i-memo').value = '';
+  if ($('i-sleep-start')) $('i-sleep-start').value = rec.sleepStart || '';
+  if ($('i-sleep-end')) $('i-sleep-end').value = rec.sleepEnd || '';
+  calcSleepDuration();
   calcInbody();
   calcBgDiff();
   initFasting(rec);
@@ -1267,7 +1329,7 @@ async function scanInbody(input) {
       r.readAsDataURL(file);
     });
 
-    const GEMINI_KEY = S.geminiKey || 'AIzaSyCx8icBSO-lWOGqRxIMVXNKBvBaqQShklo';
+    const GEMINI_KEY = S.geminiKey || 'AIzaSyB1Bq6l5_EnmvjC2aWpNSUQj9fdTfqYg5k';
     if (!GEMINI_KEY) {
       status.style.color = '#e74c3c';
       status.textContent = '⚠️ API 키가 없어요. 설정 탭에서 키를 입력해주세요.';
@@ -1485,6 +1547,30 @@ function drawCharts() {
   mk('chart-fatpct','line',{labels,datasets:[
     {data:recs.map(r=>r.fat??null),borderColor:'#d68910',backgroundColor:'#d6891022',tension:0.3,fill:true,spanGaps:true,pointRadius:4,borderWidth:2}
   ]},{scales:{y:{ticks:{font:{size:10},callback:v=>v+'%'}},x:{ticks:{font:{size:10},maxRotation:0}}}});
+
+  // 수면
+  const sleepData = recs.map(r => r.sleep ?? null);
+  mk('chart-sleep','bar',{labels,datasets:[{
+    label:'수면시간',
+    data:sleepData,
+    backgroundColor:sleepData.map(v => v===null?'#dce1e7':v>=7?'#1e8449':v>=6?'#b7770d':'#e74c3c'),
+    borderRadius:6,
+    borderSkipped:false
+  }]},{
+    scales:{
+      y:{min:0,suggestedMax:10,ticks:{font:{size:10},callback:v=>v+'h'},grid:{color:'#f0f4f8'}},
+      x:{ticks:{font:{size:10},maxRotation:0}}
+    },
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>{
+        const v=ctx.raw;
+        if(!v) return '기록없음';
+        const h=Math.floor(v),m=Math.round((v-h)*60);
+        return '수면 '+h+'시간'+(m>0?' '+m+'분':'');
+      }}}
+    }
+  });
 
   // 단식 시간
   const fastData = recs.map(r => {
